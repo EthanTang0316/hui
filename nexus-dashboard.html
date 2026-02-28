@@ -180,6 +180,7 @@
   }
   .client-item.active .name { color:var(--text-primary); }
   .client-item .meta { font-family:var(--font-mono); font-size:9px; color:var(--text-muted); }
+  .blurred { filter:blur(5px); user-select:none; }
   .client-item .task-count {
     font-family:var(--font-mono); font-size:9px; color:var(--text-muted);
     background:var(--card); padding:2px 7px; border-radius:3px; flex-shrink:0;
@@ -328,60 +329,56 @@
   .agent-log::-webkit-scrollbar { width:2px; }
   .agent-log::-webkit-scrollbar-track { background:transparent; }
   .agent-log::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.06); border-radius:2px; }
-  .log-entry { display:flex; flex-direction:column; gap:5px; }
+  .log-entry {
+    display:flex; flex-direction:column; position:relative;
+    padding-left:16px; cursor:pointer; transition:background 0.2s;
+  }
+  .log-entry::before {
+    content:''; position:absolute; left:0; top:0; bottom:0; width:2px;
+    background:var(--border-lite); transition:background 0.2s;
+  }
+  .log-entry.severity-warning::before { background:var(--amber); }
+  .log-entry.severity-critical::before { background:var(--text-primary); }
+  .log-entry:hover { background:rgba(255,255,255,0.02); }
   .log-entry.entering { animation:slideUp 0.5s var(--ease-out-expo) both; }
   @keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-  .log-time {
+
+  .log-header {
+    display:flex; align-items:center; gap:6px; padding:8px 10px 4px 10px;
     font-family:var(--font-mono); font-size:10px; color:var(--text-muted);
-    display:flex; align-items:center; gap:6px;
   }
-  .log-time .agent-tag {
+  .log-header .agent-tag {
     font-size:9px; padding:2px 7px; border-radius:3px;
     font-weight:600; letter-spacing:0.5px;
   }
-  .log-bubble {
-    background:var(--card); border:1px solid var(--border);
-    border-radius:4px; padding:12px; font-size:11px; line-height:1.65;
-    color:var(--text-secondary); cursor:pointer;
-    transition:all 0.2s; position:relative;
+  .log-header .type-badge {
+    margin-left:auto; font-size:8px; font-weight:600; letter-spacing:1px;
+    padding:2px 6px; border-radius:2px; text-transform:uppercase;
+    background:rgba(255,255,255,0.04); border:1px solid var(--border);
+    color:var(--text-muted); font-family:var(--font-mono);
   }
-  .log-bubble:hover { border-color:var(--border-lite); background:var(--elevated); }
-  .log-bubble:active { transform:scale(0.998); }
-  .log-bubble.collapsed .log-full { display:none; }
-  .log-bubble.collapsed .log-preview { display:block; }
-  .log-bubble .log-preview { display:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .log-bubble .expand-hint {
-    position:absolute; bottom:5px; right:10px;
-    font-family:var(--font-mono); font-size:9px; color:var(--text-muted);
-    opacity:0; transition:opacity 0.2s;
+  .log-title {
+    padding:0 10px 6px 10px; font-size:11px; font-weight:600;
+    color:var(--text-primary); line-height:1.5;
   }
-  .log-bubble:hover .expand-hint { opacity:0.6; }
-  .log-bubble strong { color:var(--text-primary); font-weight:600; }
-  .log-bubble .metric { color:var(--text-primary); font-family:var(--font-mono); font-weight:600; }
-  .log-bubble .good { color:var(--text-secondary); }
-  .log-bubble .warn { color:var(--text-secondary); }
-  .log-bubble .code-tag {
+  .log-body {
+    padding:0 10px 8px 10px; font-size:11px; line-height:1.65;
+    color:var(--text-secondary); display:none;
+  }
+  .log-body.open { display:block; }
+  .log-body strong { color:var(--text-primary); font-weight:600; }
+  .log-body .good { color:var(--text-secondary); }
+  .log-body .warn { color:var(--text-secondary); }
+  .log-body ul { margin:6px 0; padding-left:14px; }
+  .log-body li { margin:3px 0; }
+
+  .log-api-tag {
     display:inline-block; background:rgba(255,255,255,0.04);
     border:1px solid var(--border-lite); border-radius:3px;
     padding:1px 7px; font-family:var(--font-mono); font-size:10px;
-    color:var(--text-secondary); cursor:pointer; transition:all 0.2s;
+    color:var(--text-muted); margin:0 10px 8px 10px; cursor:pointer; transition:all 0.2s;
   }
-  .log-bubble .code-tag:hover { background:var(--elevated); border-color:var(--border-glow); }
-  .log-bubble ul { margin:6px 0; padding-left:14px; }
-  .log-bubble li { margin:3px 0; }
-  .log-row { display:flex; gap:8px; align-items:flex-end; }
-  .log-row .log-bubble { flex:1; }
-  .log-agent-icon {
-    width:28px;height:28px;border-radius:50%;display:flex;align-items:center;
-    justify-content:center;font-size:12px;flex-shrink:0;align-self:flex-end;
-    cursor:pointer;transition:all 0.25s;
-  }
-  .log-agent-icon:hover { transform:scale(1.2); }
-  .log-agent-icon:active { transform:scale(0.85); }
-  .log-agent-icon.strategy { background:rgba(255,255,255,0.06); }
-  .log-agent-icon.creative { background:rgba(255,255,255,0.06); }
-  .log-agent-icon.budget { background:rgba(255,255,255,0.06); }
-  .log-agent-icon.insight { background:rgba(255,255,255,0.06); }
+  .log-api-tag:hover { background:var(--elevated); border-color:var(--border-glow); color:var(--text-secondary); }
 
   /* Creative thumbnails */
   .creative-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(70px, 1fr)); gap:6px; margin-top:10px; }
@@ -1015,6 +1012,12 @@
   <div class="right-panel">
     <div class="agent-log-header">
       <span></span> AGENT LOG
+      <div class="filter-pills">
+        <div class="filter-pill active" data-filter="all">ALL</div>
+        <div class="filter-pill" data-filter="alert">ALERTS</div>
+        <div class="filter-pill" data-filter="insight">INSIGHTS</div>
+        <div class="filter-pill" data-filter="action">ACTIONS</div>
+      </div>
     </div>
     <div class="agent-log" id="agentLog"></div>
   </div>
@@ -1149,7 +1152,7 @@ const clientsData = {
   Wavebone: {
     status:'green', tab:'active', roas:'3.0×', cpa:'$287.40', util:'25.9%', cpm:'$8.38', spent:'$7,759.68', budget:'$30,000', elapsed:612347, creatives:368, abTests:137, actions:587, insights:19,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'14:30', executor:'active', lastEvent:120, nextDiagIn:720, queueDepth:3},
+    systemMode:{watcher:true, scheduledDiag:'14:30', executor:'active', lastEvent:120, nextDiagIn:7200, queueDepth:3},
     milestones:[
       {pos:14, label:'Launched', reached:true},
       {pos:38, label:'CPA $300', reached:true, current:true},
@@ -1171,24 +1174,36 @@ const clientsData = {
       {num:6, title:'Generate 5 Holiday Video Variants (Hook × 3, CTA × 2)', badge:'running', agent:'creative', duration:'running', detail:'Generating from base creative #847. Predicted AUC: 0.81.'},
       {num:7, title:'Quality Gate — Compliance + Predictive AUC', badge:'pending', agent:'strategy', detail:'Validate all new creatives against Meta policies.'},
       {num:8, title:'A/B Test Setup — Video v3 vs Control', badge:'pending', agent:'strategy', detail:'Sequential test with 95% confidence threshold.'},
-      {num:9, title:'Element-Level Attribution & Knowledge Base Update', badge:'pending', agent:'insight', detail:'Post-test analysis on which elements drove performance.'},
+      {num:9, title:'Element-Level Attribution & Memory Update', badge:'pending', agent:'insight', detail:'Post-test analysis on which elements drove performance.'},
       {num:10, title:'Weekly Performance Report & Client Notification', badge:'pending', agent:'insight', detail:'Auto-generate PDF report.'},
     ],
     logs:[
-      {time:'09:42', agent:'strategy', icon:'', preview:'Budget reallocation executing — shifting $320 to carousel...',
-        html:`<strong>Budget reallocation executing.</strong><br><br>Shifting <span class="metric">$320</span> from broad targeting → carousel + annotation retargeting pipeline.<br><ul><li>Carousel #312 ROAS: <span class="good">2.8×</span></li><li>Assembly animation ROAS: <span class="warn">1.2×</span> — holding spend</li><li>Expected: <span class="good">+$1.8K weekly revenue</span></li></ul><span class="code-tag">marketing_api/budget_shift</span>`},
-      {time:'09:38', agent:'insight', icon:'', preview:'Competitor alert: STANDPILLAR new studio desk campaigns...',
-        html:`<strong>Competitor alert: STANDPILLAR</strong><br><br>Ad Library scan: <span class="warn">2 new competitors</span> launched studio furniture campaigns with lifestyle shots.<br><br>Our annotation format still unique — maintaining <span class="good">+210% CTR advantage</span>.<br>→ Triggering Creative Agent for B/A comparison V3`},
-      {time:'09:35', agent:'creative', icon:'', preview:'Creative pipeline — 4 variants active across formats...', hasCreatives:true,
-        html:`<strong>Creative pipeline active.</strong><br><br>• #301 Annotation Showcase: <span class="good">Scaled</span> — CTR 2.48%, ROAS 3.2×<br>• #305 Assembly Animation: <span class="metric">Testing</span> — CTR 3.18%, ROAS improving<br>• #308 Before/After: <span class="metric">Testing</span> — CTR 2.83%, near target<br>• #312 Product Carousel: <span class="good">Scaled</span> — CTR 3.11%, highest spend<br><br><span class="code-tag">creative_engine/optimize</span>`},
-      {time:'09:30', agent:'budget', icon:'', preview:'Pacing check — all campaigns within ±3%...',
-        html:`Pacing check complete. All campaigns within <span class="good">±3%</span> of target.<br><br>Q1 workstation push on track. Carousel + annotation combo driving <span class="good">25 purchases</span> this period.`},
+      {time:'12:28', agent:'budget', type:'action', severity:'normal', title:'Budget reallocation executing — shifting $320 to carousel',
+        body:`Shifting $320 from broad targeting → carousel + annotation retargeting pipeline. Carousel #312 ROAS 2.8×, assembly animation 1.2× — holding spend. Expected +$1.8K weekly revenue.`,
+        apiCall:'marketing_api/budget_shift'},
+      {time:'12:20', agent:'insight', type:'insight', severity:'normal', title:'YouTube: Floyd Steinberg Headquarter review — real-world weight tests',
+        body:`New review video gaining traction. Real-world weight-bearing demos — high purchase-intent content. Consider retargeting viewers.`},
+      {time:'12:14', agent:'insight', type:'insight', severity:'normal', title:'Ad Library scan — STANDPILLAR + 2 new competitors detected',
+        body:`2 new entrants in studio furniture with lifestyle shots. Our annotation format still unique — +210% CTR advantage maintained.`},
+      {time:'11:45', agent:'budget', type:'alert', severity:'warning', title:'Retargeting segment CPA anomaly — frequency 4.1',
+        body:`Retargeting CPA drifting above target. Frequency hit 4.1, creative fatigue likely. Pausing bottom 2 ad sets pending refresh.`,
+        apiCall:'alert/cpa_anomaly'},
+      {time:'11:02', agent:'insight', type:'insight', severity:'normal', title:'Web: Mixonline NAMM 2026 roundup — studio furniture spillover attention',
+        body:`NAMM 2026 show floor coverage driving category-level search volume. Studio furniture/gear getting spillover.`},
+      {time:'10:22', agent:'creative', type:'action', severity:'normal', title:'Creative optimization — 4 variants active across formats', hasCreatives:true,
+        body:`• #301 Annotation Showcase: Scaled — CTR 2.48%, ROAS 3.2×<br>• #305 Assembly Animation: Testing — CTR 3.18%, ROAS improving<br>• #308 Before/After: Testing — CTR 2.83%, near target<br>• #312 Product Carousel: Scaled — CTR 3.11%, highest spend`,
+        apiCall:'creative_engine/optimize'},
+      {time:'10:08', agent:'strategy', type:'insight', severity:'normal', title:'Diagnose complete — ROAS +7.1% WoW, lookalike outperforming',
+        body:`ROAS trending up +7.1% WoW. Lookalike 25-44 performing 2.3× better than broad. Recommending budget shift.`},
+      {time:'10:00', agent:'strategy', type:'action', severity:'normal', title:'Scheduled diagnose triggered — full performance scan',
+        body:`Watcher triggered scheduled diagnostic cycle. Scanning ROAS trends, CPA anomalies, audience overlap, creative fatigue signals.`,
+        apiCall:'pipeline/diagnose'},
     ]
   },
   TMGM: {
     status:'amber', tab:'active', roas:'2.8×', cpa:'$24.50', util:'78%', cpm:'$11.20', spent:'$63,218.40', budget:'$80,000', elapsed:4496580, creatives:15, abTests:2, actions:134, insights:680,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'15:00', executor:'idle', lastEvent:340, nextDiagIn:1080, queueDepth:1},
+    systemMode:{watcher:true, scheduledDiag:'15:00', executor:'idle', lastEvent:340, nextDiagIn:9000, queueDepth:1},
     milestones:[
       {pos:20, label:'Launched', reached:true},
       {pos:42, label:'CPA $24.5', reached:true, current:true},
@@ -1201,16 +1216,20 @@ const clientsData = {
       {num:5, title:'Retargeting Funnel — Cart abandoner refresh', badge:'pending', agent:'strategy', detail:'Current abandon rate 68%. Designing 3-step sequence.'},
     ],
     logs:[
-      {time:'09:41', agent:'budget', icon:'', preview:'Switching to Cost Cap at $22...',
-        html:`<strong>Bid strategy switch.</strong><br><br>Lowest Cost → <span class="metric">Cost Cap @ $22</span>.<br><br>Monitoring 4 hours.<br><span class="code-tag">meta_api/bid_strategy</span>`},
-      {time:'09:36', agent:'insight', icon:'', preview:'CPA spike — audience overlap detected...',
-        html:`<strong>Root cause identified.</strong><br><br>Campaigns share <span class="warn">34% audience overlap</span>.<br><br>Applying exclusion rules.`},
+      {time:'12:21', agent:'budget', type:'action', severity:'normal', title:'Switching to Cost Cap at $22',
+        body:`Lowest Cost → Cost Cap @ $22. Monitoring 4 hours.`,
+        apiCall:'meta_api/bid_strategy'},
+      {time:'12:06', agent:'insight', type:'alert', severity:'warning', title:'CPA spike — audience overlap detected',
+        body:`Campaigns share 34% audience overlap. CPA +15% above target. Applying exclusion rules.`},
+      {time:'11:00', agent:'strategy', type:'action', severity:'normal', title:'Scheduled diagnose — placement audit complete',
+        body:`Reels 2.1× better CPA than Feed. Shifting budget to Reels placement.`,
+        apiCall:'pipeline/diagnose'},
     ]
   },
   ZFX: {
     status:'green', tab:'active', roas:'5.1×', cpa:'$12.30', util:'92%', cpm:'$6.90', spent:'$4,612.85', budget:'$5,000', elapsed:265380, creatives:31, abTests:4, actions:247, insights:1820,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'13:45', executor:'active', lastEvent:60, nextDiagIn:420, queueDepth:5},
+    systemMode:{watcher:true, scheduledDiag:'13:45', executor:'active', lastEvent:60, nextDiagIn:4500, queueDepth:5},
     milestones:[
       {pos:20, label:'Launched', reached:true},
       {pos:68, label:'CPA $12.3', reached:true, current:true},
@@ -1219,19 +1238,22 @@ const clientsData = {
       {num:1, title:'Trial Signup Funnel Analysis', badge:'completed', agent:'insight', duration:'7m', detail:'Trial-to-paid 23%. Bounce dropped to 31%.'},
       {num:2, title:'Video A/B Results — v3 wins with 94.7% confidence', badge:'completed', agent:'strategy', duration:'14m', detail:'CTR +34%, CPA -18% vs control.'},
       {num:3, title:'Winner Scaling — $500 → $2K/day gradual', badge:'completed', agent:'budget', duration:'11m', detail:'Performance maintained ±5%.'},
-      {num:4, title:'Knowledge Base Update — v3 winning formula', badge:'completed', agent:'insight', duration:'5m', detail:'3s hook, social proof at 8s, CTA at 15s.'},
+      {num:4, title:'Memory Update — v3 winning formula', badge:'completed', agent:'insight', duration:'5m', detail:'3s hook, social proof at 8s, CTA at 15s.'},
       {num:5, title:'Next Iteration — Apply formula to 3 concepts', badge:'running', agent:'creative', duration:'running', detail:'Targeting enterprise segment.'},
     ],
     logs:[
-      {time:'09:40', agent:'creative', icon:'', preview:'Next iteration from v3 formula...',
-        html:`<strong>Creative iteration.</strong><br><br>Applying v3 formula:<br><ul><li>3s product UI hook</li><li>Social proof at 8s</li><li>CTA at 15s</li></ul>Generating <span class="metric">3 concepts</span>.`},
-      {time:'09:33', agent:'insight', icon:'', preview:'v3 elements documented...',
-        html:`Knowledge base updated.<br><br>Prediction model: <span class="good">AUC 0.84 → 0.87</span>.`},
+      {time:'12:29', agent:'creative', type:'action', severity:'normal', title:'Creative iteration — applying v3 formula',
+        body:`Applying v3 formula: 3s product UI hook, social proof at 8s, CTA at 15s. Generating 3 concepts.`},
+      {time:'12:15', agent:'insight', type:'insight', severity:'normal', title:'v3 elements documented — KB updated',
+        body:`Memory updated. Prediction model AUC 0.84 → 0.87.`},
+      {time:'10:00', agent:'strategy', type:'action', severity:'normal', title:'Scheduled diagnose — v3 A/B results confirmed',
+        body:`Video v3 wins with 94.7% confidence. CTR +34%, CPA -18% vs control. Winner scaling initiated.`,
+        apiCall:'pipeline/diagnose'},
     ]
   },
   Mesprey: { status:'green', tab:'active', roas:'3.6×', cpa:'$21.10', util:'88%', cpm:'$9.80', spent:'$8,736.50', budget:'$10,000', elapsed:438780, creatives:18, abTests:2, actions:156, insights:920,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'16:00', executor:'idle', lastEvent:900, nextDiagIn:2400, queueDepth:0},
+    systemMode:{watcher:true, scheduledDiag:'16:00', executor:'idle', lastEvent:900, nextDiagIn:12600, queueDepth:0},
     milestones:[
       {pos:20, label:'Launched', reached:true},
       {pos:50, label:'CPA $21.1', reached:true, current:true},
@@ -1242,13 +1264,15 @@ const clientsData = {
       {num:3, title:'Budget allocation — Market-level optimization', badge:'pending', agent:'budget', detail:'Compute optimal spend split.'},
     ],
     logs:[
-      {time:'09:39', agent:'creative', icon:'', preview:'Localizing for UK and DACH...',
-        html:`<strong>Creative localization.</strong><br><br>Adapting <span class="metric">5 creatives</span>:<br><ul><li>UK: Pound pricing, local testimonials</li><li>DACH: German copy, GDPR trust</li></ul>`},
+      {time:'12:10', agent:'creative', type:'action', severity:'normal', title:'Localizing creatives for UK and DACH',
+        body:`Adapting 5 creatives. UK: pound pricing, local testimonials. DACH: German copy, GDPR trust badges.`},
+      {time:'10:30', agent:'insight', type:'insight', severity:'normal', title:'Multi-market research complete — US, UK, DACH',
+        body:`US CPM 2.3× higher but conversion 1.8× better. UK and DACH show untapped potential.`},
     ]
   },
   Soulink: { status:'red', tab:'active', roas:'1.4×', cpa:'$38.70', util:'45%', cpm:'$14.50', spent:'$2,714.30', budget:'$6,000', elapsed:176580, creatives:8, abTests:1, actions:87, insights:340,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'11:30', executor:'idle', lastEvent:180, nextDiagIn:1800, queueDepth:2},
+    systemMode:{watcher:true, scheduledDiag:'13:30', executor:'idle', lastEvent:180, nextDiagIn:3600, queueDepth:2},
     milestones:[
       {pos:12, label:'Launched', reached:true},
       {pos:25, label:'CPA $38.7', reached:true, current:true},
@@ -1259,13 +1283,17 @@ const clientsData = {
       {num:3, title:'Emergency — Generate 10 new variants', badge:'pending', agent:'creative', detail:'All current creatives above freq 4.0.'},
     ],
     logs:[
-      {time:'09:37', agent:'strategy', icon:'', preview:'ALERT: ROAS below threshold...',
-        html:`<strong style="color:var(--red)">⚠ ROAS below 2×.</strong><br><br><ul><li>Competitor flash sale: <span class="warn">3 major</span></li><li>All creatives: freq > <span class="warn">4.0</span></li><li>Bottom 3 campaigns paused</li></ul><span class="code-tag">alert/threshold</span>`},
+      {time:'12:22', agent:'strategy', type:'alert', severity:'critical', title:'ROAS below 2× threshold — emergency',
+        body:`Competitor flash sale: 3 major. All creatives freq >4.0. Bottom 3 campaigns paused.`,
+        apiCall:'alert/threshold'},
+      {time:'11:30', agent:'strategy', type:'action', severity:'normal', title:'Scheduled diagnose — emergency audit triggered',
+        body:`ROAS below threshold detected during diagnostic cycle. Competitor flash sale + all 8 creatives fatigued. Escalating to emergency protocol.`,
+        apiCall:'pipeline/diagnose'},
     ]
   },
   Meridian: { status:'green', tab:'active', roas:'3.9×', cpa:'$16.80', util:'91%', cpm:'$7.40', spent:'$27,341.60', budget:'$30,000', elapsed:611580, creatives:22, abTests:3, actions:178, insights:1100,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'14:00', executor:'active', lastEvent:90, nextDiagIn:600, queueDepth:4},
+    systemMode:{watcher:true, scheduledDiag:'14:00', executor:'active', lastEvent:90, nextDiagIn:5400, queueDepth:4},
     milestones:[
       {pos:20, label:'Launched', reached:true},
       {pos:62, label:'CPA $16.8', reached:true, current:true},
@@ -1277,8 +1305,11 @@ const clientsData = {
       {num:4, title:'Launch day monitoring — Real-time', badge:'running', agent:'budget', duration:'running', detail:'3 hours in. ROAS 3.9×.'},
     ],
     logs:[
-      {time:'09:44', agent:'budget', icon:'', preview:'Launch day — ROAS 3.9× after 3h...',
-        html:`<strong>Spring launch — 3h in.</strong><br><br><ul><li>ROAS: <span class="good">3.9×</span></li><li>Pacing: <span class="good">On target</span></li><li>CPA: <span class="good">$16.80</span></li></ul>`},
+      {time:'12:25', agent:'budget', type:'action', severity:'normal', title:'Spring launch — ROAS 3.9× after 3h',
+        body:`ROAS 3.9×, pacing on target, CPA $16.80.`},
+      {time:'10:00', agent:'strategy', type:'action', severity:'normal', title:'Scheduled diagnose — launch structure validated',
+        body:`CBO at $3K/day across 5 ad sets. All audience segments active. Launching spring campaign.`,
+        apiCall:'pipeline/diagnose'},
     ]
   },
   Aurelia: { status:'green', tab:'completed', roas:'5.8×', cpa:'$9.20', util:'100%', cpm:'$5.80', spent:'$15,240.00', budget:'$15,240', elapsed:3888000, creatives:45, abTests:0, actions:312, insights:2400,
@@ -1295,13 +1326,13 @@ const clientsData = {
       {num:4, title:'Program ROI — Final report', badge:'completed', agent:'insight', duration:'4m', detail:'$580K on $100K spend.'},
     ],
     logs:[
-      {time:'Yesterday', agent:'insight', icon:'', preview:'Complete — 5.8× ROAS, $580K...',
-        html:`<strong>Program complete.</strong><br><br><span class="metric">$580K revenue</span> on $100K.<br>ROAS: <span class="good">5.8×</span><br><br>Recommended Q2 continuation.`},
+      {time:'Yesterday', agent:'insight', type:'insight', severity:'normal', title:'Program complete — 5.8× ROAS, $580K revenue',
+        body:`$580K revenue on $100K spend. ROAS 5.8×. Recommended Q2 continuation.`},
     ]
   },
   NovaPharma: { status:'green', tab:'active', roas:'3.2×', cpa:'$28.50', util:'85%', cpm:'$10.40', spent:'$5,108.75', budget:'$6,000', elapsed:1555380, creatives:14, abTests:2, actions:121, insights:560,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'14:15', executor:'idle', lastEvent:450, nextDiagIn:1200, queueDepth:1},
+    systemMode:{watcher:true, scheduledDiag:'14:15', executor:'idle', lastEvent:450, nextDiagIn:6300, queueDepth:1},
     milestones:[
       {pos:20, label:'Launched', reached:true},
       {pos:38, label:'CPA $28.5', reached:true, current:true},
@@ -1312,13 +1343,16 @@ const clientsData = {
       {num:3, title:'Landing page test — Long vs short', badge:'running', agent:'insight', duration:'running', detail:'Long-form +12% conversion, +8% bounce.'},
     ],
     logs:[
-      {time:'09:38', agent:'insight', icon:'', preview:'Landing page test — long-form +12%...',
-        html:`Landing page A/B:<br><br>Long-form: <span class="good">+12% conv</span>, <span class="warn">+8% bounce</span>.<br>Need 48h for significance.`},
+      {time:'12:08', agent:'insight', type:'insight', severity:'normal', title:'Landing page test — long-form +12% conversion',
+        body:`Long-form +12% conv, +8% bounce. Need 48h for significance.`},
+      {time:'10:15', agent:'strategy', type:'action', severity:'normal', title:'Diagnose — FDA compliance passed, audience expanded',
+        body:`All ad copy passed compliance. 2 claims auto-corrected. 3 health lookalike audiences created with <8% overlap.`,
+        apiCall:'pipeline/diagnose'},
     ]
   },
   UrbanBite: { status:'amber', tab:'active', roas:'2.1×', cpa:'$31.20', util:'62%', cpm:'$13.10', spent:'$11,284.90', budget:'$18,000', elapsed:1209780, creatives:11, abTests:1, actions:94, insights:410,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'15:30', executor:'idle', lastEvent:600, nextDiagIn:1500, queueDepth:1},
+    systemMode:{watcher:true, scheduledDiag:'15:30', executor:'idle', lastEvent:600, nextDiagIn:10800, queueDepth:1},
     milestones:[
       {pos:20, label:'Launched', reached:true},
       {pos:35, label:'CPA $31.2', reached:true, current:true},
@@ -1328,8 +1362,11 @@ const clientsData = {
       {num:2, title:'LA market — Pause or pivot', badge:'running', agent:'strategy', duration:'running', detail:'Considering suburban pivot.'},
     ],
     logs:[
-      {time:'09:35', agent:'strategy', icon:'', preview:'LA underperforming — evaluating...',
-        html:`<strong>LA analysis.</strong><br><br>Current: <span class="warn">1.8× ROAS</span>.<br><ul><li>Suburban pivot</li><li>Lunch dayparting</li><li>Reallocate to NYC</li></ul>Recommending suburban + dayparting.`},
+      {time:'12:18', agent:'budget', type:'alert', severity:'warning', title:'LA market ROAS 1.8× — below 2× threshold',
+        body:`LA geo dragging portfolio. Daily spend $180 at 1.8× ROAS vs NYC $420 at 3.1×. Recommending suburban pivot + lunch dayparting.`,
+        apiCall:'alert/geo_roas'},
+      {time:'11:30', agent:'insight', type:'insight', severity:'normal', title:'Geo-performance breakdown — city-level ROAS mapped',
+        body:`NYC 3.1×, LA 1.8×, Chicago 2.4×. LA underperforming across all placements.`},
     ]
   },
   Solaris: { status:'green', tab:'completed', roas:'4.5×', cpa:'$14.60', util:'100%', cpm:'$7.20', spent:'$22,360.00', budget:'$22,360', elapsed:2592000, creatives:19, abTests:0, actions:165, insights:832,
@@ -1345,13 +1382,13 @@ const clientsData = {
       {num:3, title:'Campaign wrap-up', badge:'completed', agent:'insight', duration:'5m', detail:'832 leads at $14.60 CPL. 23% install.'},
     ],
     logs:[
-      {time:'Last week', agent:'insight', icon:'', preview:'Complete — 832 leads, 23% install...',
-        html:`<strong>Concluded.</strong><br><br><span class="metric">832 leads</span> at $14.60 CPL.<br>Install: <span class="good">23%</span>`},
+      {time:'Last week', agent:'insight', type:'insight', severity:'normal', title:'Campaign concluded — 832 leads, 23% install rate',
+        body:`832 leads at $14.60 CPL. Install rate 23%.`},
     ]
   },
   Quantum: { status:'green', tab:'active', roas:'3.7×', cpa:'$19.90', util:'89%', cpm:'$9.50', spent:'$35,617.20', budget:'$40,000', elapsed:1728780, creatives:26, abTests:3, actions:203, insights:1450,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'13:00', executor:'active', lastEvent:150, nextDiagIn:540, queueDepth:3},
+    systemMode:{watcher:true, scheduledDiag:'13:00', executor:'active', lastEvent:150, nextDiagIn:1800, queueDepth:3},
     milestones:[
       {pos:20, label:'Launched', reached:true},
       {pos:55, label:'CPA $19.9', reached:true, current:true},
@@ -1363,13 +1400,15 @@ const clientsData = {
       {num:4, title:'Value-based bidding test', badge:'running', agent:'budget', duration:'running', detail:'+3% DoD improvement. Day 3 of test.'},
     ],
     logs:[
-      {time:'09:43', agent:'budget', icon:'', preview:'Value-based bidding — +3% DoD...',
-        html:`<strong>Value-based bidding.</strong><br><br>Day 3: <span class="good">+3% DoD</span>.<br>LTV bids outperform by <span class="metric">12%</span>.<br><br>4 more days before rollout.`},
+      {time:'12:24', agent:'budget', type:'action', severity:'normal', title:'Value-based bidding test — +3% DoD improvement',
+        body:`Day 3: +3% DoD. LTV bids outperform by 12%. 4 more days before rollout.`},
+      {time:'11:00', agent:'insight', type:'insight', severity:'normal', title:'Cross-channel attribution — LinkedIn + Meta mapped',
+        body:`68% of converters touch both channels. Recommended 60/40 Meta/LinkedIn split.`},
     ]
   },
   ZenRetail: { status:'green', tab:'active', roas:'3.4×', cpa:'$22.10', util:'82%', cpm:'$10.90', spent:'$6,519.44', budget:'$8,000', elapsed:2419380, creatives:20, abTests:2, actions:167, insights:980,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'16:30', executor:'idle', lastEvent:1200, nextDiagIn:2100, queueDepth:0},
+    systemMode:{watcher:true, scheduledDiag:'16:30', executor:'idle', lastEvent:1200, nextDiagIn:14400, queueDepth:0},
     milestones:[
       {pos:20, label:'Launched', reached:true},
       {pos:48, label:'CPA $22.1', reached:true, current:true},
@@ -1379,62 +1418,65 @@ const clientsData = {
       {num:2, title:'Attribution model calibration', badge:'running', agent:'strategy', duration:'running', detail:'40% offline uplift from Meta ads.'},
     ],
     logs:[
-      {time:'09:40', agent:'strategy', icon:'', preview:'Attribution model calibrating...',
-        html:`<strong>Attribution update.</strong><br><br><ul><li>Online direct: <span class="metric">60%</span></li><li>Offline uplift: <span class="good">+40%</span></li><li>Cross-device: <span class="metric">22%</span></li></ul>Full model in 72h.`},
+      {time:'12:12', agent:'strategy', type:'insight', severity:'normal', title:'Attribution model calibrating — 40% offline uplift',
+        body:`Online direct 60%, offline uplift +40%, cross-device 22%. Full model in 72h.`},
+      {time:'10:30', agent:'insight', type:'action', severity:'normal', title:'Offline conversion — POS integration complete',
+        body:`CAPI integrated with point-of-sale system. Baseline attribution established.`,
+        apiCall:'capi/pos_sync'},
     ]
   },
   VeloCraft: { status:'green', tab:'active', roas:'4.1×', cpa:'$18.30', util:'93%', cpm:'$8.90', spent:'$3,348.16', budget:'$3,600', elapsed:864000, creatives:16, abTests:2, actions:134, insights:720,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'15:00', executor:'active', lastEvent:300, nextDiagIn:900, queueDepth:2},
+    systemMode:{watcher:true, scheduledDiag:'15:00', executor:'active', lastEvent:300, nextDiagIn:9000, queueDepth:2},
     milestones:[{pos:20, label:'Launched', reached:true},{pos:55, label:'CPA $18.3', reached:true, current:true}],
     tasks:[],
     logs:[]
   },
   Luminos: { status:'amber', tab:'active', roas:'1.8×', cpa:'$34.60', util:'58%', cpm:'$12.70', spent:'$1,457.80', budget:'$2,500', elapsed:432000, creatives:9, abTests:1, actions:68, insights:290,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'14:00', executor:'idle', lastEvent:900, nextDiagIn:1800, queueDepth:0},
+    systemMode:{watcher:true, scheduledDiag:'14:00', executor:'idle', lastEvent:900, nextDiagIn:5400, queueDepth:0},
     milestones:[{pos:20, label:'Launched', reached:true},{pos:35, label:'CPA $34.6', reached:true, current:true}],
     tasks:[],
     logs:[]
   },
   PeakFit: { status:'green', tab:'active', roas:'3.5×', cpa:'$24.80', util:'87%', cpm:'$9.10', spent:'$17,426.35', budget:'$20,000', elapsed:1296000, creatives:21, abTests:3, actions:156, insights:890,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'15:30', executor:'active', lastEvent:180, nextDiagIn:600, queueDepth:1},
+    systemMode:{watcher:true, scheduledDiag:'15:30', executor:'active', lastEvent:180, nextDiagIn:10800, queueDepth:1},
     milestones:[{pos:20, label:'Launched', reached:true},{pos:52, label:'CPA $24.8', reached:true, current:true}],
     tasks:[],
     logs:[]
   },
   NordHaven: { status:'green', tab:'completed', roas:'4.8×', cpa:'$12.40', util:'100%', cpm:'$6.50', spent:'$42,580.00', budget:'$42,580', elapsed:2592000, creatives:32, abTests:0, actions:245, insights:1680,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'16:00', executor:'idle', lastEvent:7200, nextDiagIn:3600, queueDepth:0},
+    systemMode:{watcher:true, scheduledDiag:'16:00', executor:'idle', lastEvent:7200, nextDiagIn:12600, queueDepth:0},
     milestones:[{pos:20, label:'Launched', reached:true},{pos:85, label:'CPA $12.4', reached:true, current:true}],
     tasks:[],
     logs:[]
   },
   CrystalAI: { status:'green', tab:'active', roas:'3.9×', cpa:'$15.70', util:'91%', cpm:'$7.80', spent:'$9,131.60', budget:'$10,000', elapsed:950400, creatives:17, abTests:2, actions:142, insights:810,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'14:30', executor:'active', lastEvent:240, nextDiagIn:720, queueDepth:2},
+    systemMode:{watcher:true, scheduledDiag:'14:30', executor:'active', lastEvent:240, nextDiagIn:7200, queueDepth:2},
     milestones:[{pos:20, label:'Launched', reached:true},{pos:60, label:'CPA $15.7', reached:true, current:true}],
     tasks:[],
     logs:[]
   },
   EcoBloom: { status:'red', tab:'active', roas:'1.2×', cpa:'$42.10', util:'38%', cpm:'$15.30', spent:'$762.45', budget:'$2,000', elapsed:259200, creatives:6, abTests:1, actions:52, insights:180,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'13:00', executor:'idle', lastEvent:1800, nextDiagIn:3600, queueDepth:0},
+    systemMode:{watcher:true, scheduledDiag:'13:00', executor:'idle', lastEvent:1800, nextDiagIn:1800, queueDepth:0},
     milestones:[{pos:20, label:'Launched', reached:true},{pos:28, label:'CPA $42.1', reached:true, current:true}],
     tasks:[],
     logs:[]
   },
   SkyPulse: { status:'green', tab:'active', roas:'3.3×', cpa:'$20.50', util:'84%', cpm:'$10.20', spent:'$6,720.88', budget:'$8,000', elapsed:1123200, creatives:14, abTests:2, actions:118, insights:640,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'15:00', executor:'active', lastEvent:420, nextDiagIn:1200, queueDepth:1},
+    systemMode:{watcher:true, scheduledDiag:'15:00', executor:'active', lastEvent:420, nextDiagIn:9000, queueDepth:1},
     milestones:[{pos:20, label:'Launched', reached:true},{pos:50, label:'CPA $20.5', reached:true, current:true}],
     tasks:[],
     logs:[]
   },
   AstraVibe: { status:'green', tab:'completed', roas:'5.2×', cpa:'$10.80', util:'100%', cpm:'$6.10', spent:'$51,372.00', budget:'$51,372', elapsed:3456000, creatives:38, abTests:0, actions:278, insights:2100,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'16:30', executor:'idle', lastEvent:14400, nextDiagIn:7200, queueDepth:0},
+    systemMode:{watcher:true, scheduledDiag:'16:30', executor:'idle', lastEvent:14400, nextDiagIn:14400, queueDepth:0},
     milestones:[{pos:20, label:'Launched', reached:true},{pos:90, label:'CPA $10.8', reached:true, current:true}],
     tasks:[],
     logs:[]
@@ -1450,11 +1492,9 @@ Wavebone:[
     {dot:'insight',icon:'',title:'Insight — Annotation Style Outperforms',agent:'insight',agentColor:'amber',time:'Feb 22, 03:17',desc:'V1/V2 both underperforming — market scan triggered. Annotated/callout-style ads trending +210% CTR in studio furniture niche. Competitor gap: no one doing technical callouts on dark backgrounds. Recommend pivot to annotation format.'},
     {dot:'iteration',icon:'v3',title:'V3 — Annotation Format Pivot',agent:'creative',agentColor:'purple',time:'Feb 23, 10:00',desc:'Full pivot to annotation format: callout lines pointing to key features on product shot.',metrics:[{val:'1.76%',lbl:'CTR',color:'cyan'},{val:'2.1×',lbl:'ROAS',color:'cyan'},{val:'$254.96',lbl:'CPA',color:'amber'}],ad:{bg:'#0a0a0a',headline:'Complete Studio Solution',caption:'9U rack space. Ergonomic angled design. Smart cable management. Everything a producer needs. #Wavebone #StudioSetup',cta:'Shop Now',ctaBg:'#333',likes:'1.8K',comments:'156',badge:'V3',badgeColor:'#ccc',badgeBg:'rgba(255,255,255,0.06)',duration:'—',brand:'Wavebone',avatarBg:'#333',media:'creatives/260119-wavebone-物料demo/图片/标注类/1.png',ratio:'9/16'}},
     {dot:'test',icon:'A/B Test',agent:'insight',agentColor:'amber',title:'A/B Test — V3 Annotation vs V2 Closeup',time:'Feb 23, 14:00',desc:'V3 wins at 97.3% confidence in 16 hours. Annotation format decisively outperforms detail closeups.',ab:{leftBg:'#111',leftLabel:'V3 ANNOTATION',leftCtr:'1.76%',leftColor:'#e5e5e5',rightBg:'#181818',rightLabel:'V2 CLOSEUP',rightCtr:'1.1%',rightColor:'#999'}},
-    {dot:'iteration',icon:'v4',title:'V4 — Annotation + B/A Comparison',agent:'creative',agentColor:'purple',time:'Feb 24, 11:00',desc:'Combined annotation callouts with before/after comparison layout. "Messy studio → organized Wavebone setup" narrative.',metrics:[{val:'2.20%',lbl:'CTR',color:'cyan'},{val:'2.8×',lbl:'ROAS',color:'green'},{val:'$193.47',lbl:'CPA',color:'cyan'}],ad:{bg:'#0a0a0a',headline:'Elevate Your Studio',caption:'Before: cables everywhere. After: Wavebone Headquarter — 9U rack, ergonomic design, every piece in place. #StudioUpgrade #Wavebone',cta:'See the Difference',ctaBg:'#333',likes:'2.4K',comments:'198',badge:'V4',badgeColor:'#ccc',badgeBg:'rgba(255,255,255,0.06)',duration:'—',brand:'Wavebone',avatarBg:'#333',media:'creatives/260127-图片物料/对比类衍生 拷贝2.png',ratio:'9/16'}},
-    {dot:'test',icon:'A/B Test',agent:'insight',agentColor:'amber',title:'A/B Test — V4 B/A vs V3 Pure Annotation',time:'Feb 24, 14:00',desc:'V4 wins ROAS (2.8× vs 2.1×) at 94.1% confidence. Comparison layout drives stronger purchase intent.',ab:{leftBg:'#111',leftLabel:'V4 B/A COMBO',leftCtr:'2.20%',leftColor:'#e5e5e5',rightBg:'#181818',rightLabel:'V3 ANNOTATION',rightCtr:'1.76%',rightColor:'#999'}},
-    {dot:'iteration',icon:'v5',title:'V5 — Optimized Layout + Social Proof',agent:'creative',agentColor:'purple',time:'Feb 25, 10:00',desc:'Refined callout positioning, higher contrast lines, added "2,400+ studios equipped" social proof overlay.',metrics:[{val:'2.48%',lbl:'CTR',color:'green'},{val:'3.2×',lbl:'ROAS',color:'green'},{val:'$166.15',lbl:'CPA',color:'green'}],ad:{bg:'#0a0a0a',headline:'Complete Studio Solution',caption:'2,400+ studios equipped. 9U rack space. Ergonomic angled design. Smart cable management. Everything a producer needs — in one workstation. #Wavebone #StudioSetup',cta:'Shop Now',ctaBg:'#333',likes:'3.2K',comments:'287',badge:'V5',badgeColor:'#ccc',badgeBg:'rgba(255,255,255,0.06)',duration:'—',brand:'Wavebone',avatarBg:'#333',media:'creatives/260119-wavebone-物料demo/图片/标注类/3.png',ratio:'9/16'}},
-    {dot:'winner',icon:'↑',title:'Scaled — V5 Duplicated & Ramping',agent:'budget',agentColor:'green',time:'Feb 26, 14:00',desc:'V5 testing 48h: 2 purchases, 23 add-to-carts, CPA $166, ROAS 3.2×. Total test spend $330. Consolidating V3/V4 budgets → V5 only. Duplicated V5 into 3 ad sets (broad, lookalike, retargeting). Initial budget $500/day. Day 1: 3 purchases, 14 add-to-carts, CPA $158, ROAS 3.1×. Day 2: +20% → $600/day, 4 purchases, 19 add-to-carts, CPA $147, ROAS 3.4×. Today: +20% → $720/day. Next: $860/day tomorrow if ROAS holds.'},
-    {dot:'note',icon:'',title:'Knowledge Base — Winning Formula Logged',agent:'insight',agentColor:'amber',time:'Feb 26, 14:04',desc:'Winning formula: clean layout + feature annotation callouts + studio atmosphere. Social proof reinforces conversion. CTR 0.8% → 2.48%, ROAS 1.1× → 3.2× across 5 iterations. Background color irrelevant — layout structure and annotation clarity are the key drivers.'}]},
+    {dot:'iteration',icon:'v4',title:'V4 — Optimized Layout + Social Proof',agent:'creative',agentColor:'purple',time:'Feb 25, 10:00',desc:'Refined callout positioning, higher contrast lines, added "2,400+ studios equipped" social proof overlay.',metrics:[{val:'2.48%',lbl:'CTR',color:'green'},{val:'3.2×',lbl:'ROAS',color:'green'},{val:'$166.15',lbl:'CPA',color:'green'}],ad:{bg:'#0a0a0a',headline:'Complete Studio Solution',caption:'2,400+ studios equipped. 9U rack space. Ergonomic angled design. Smart cable management. Everything a producer needs — in one workstation. #Wavebone #StudioSetup',cta:'Shop Now',ctaBg:'#333',likes:'3.2K',comments:'287',badge:'V4',badgeColor:'#ccc',badgeBg:'rgba(255,255,255,0.06)',duration:'—',brand:'Wavebone',avatarBg:'#333',media:'creatives/260119-wavebone-物料demo/图片/标注类/3.png',ratio:'9/16'}},
+    {dot:'winner',icon:'↑',title:'Scaled — V4 Duplicated & Ramping',agent:'budget',agentColor:'green',time:'Feb 26, 14:00',desc:'V4 testing 48h: 2 purchases, 23 add-to-carts, CPA $166, ROAS 3.2×. Total test spend $330. Consolidating V3 budgets → V4 only. Duplicated V4 into 3 ad sets (broad, lookalike, retargeting). Initial budget $500/day. Day 1: 3 purchases, 14 add-to-carts, CPA $158, ROAS 3.1×. Day 2: +20% → $600/day, 4 purchases, 19 add-to-carts, CPA $147, ROAS 3.4×. Today: +20% → $720/day. Next: $860/day tomorrow if ROAS holds.'},
+    {dot:'note',icon:'',title:'Memory — Winning Formula Logged',agent:'memory',agentColor:'amber',time:'Feb 26, 14:04',desc:'Winning formula: clean layout + feature annotation callouts + studio atmosphere. Social proof reinforces conversion. CTR 0.8% → 2.48%, ROAS 1.1× → 3.2× across 4 iterations. Background color irrelevant — layout structure and annotation clarity are the key drivers.'}]},
   {name:'#305 Assembly Animation',type:'Video 15s',ctr:'3.18%',roas:'1.2×',status:'Testing',history:[
     {dot:'origin',icon:'○',title:'Insight — Assembly Videos +180% Engagement',agent:'insight',agentColor:'amber',time:'Feb 23, 21:15',desc:'Insight Agent detects: assembly/unboxing videos +180% engagement in furniture category on Reels. TikTok cross-pollination trend. Auto-triggering creative generation.'},
     {dot:'iteration',icon:'v1',title:'V1 — Assembly Animation (15s)',agent:'creative',agentColor:'purple',time:'Feb 24, 14:00',desc:'15s assembly animation: workstation assembles from components with annotation lines appearing as parts connect.',metrics:[{val:'3.18%',lbl:'CTR',color:'green'},{val:'0.78×',lbl:'ROAS',color:'red'},{val:'$254.96',lbl:'CPA',color:'red'}],ad:{bg:'#0a0a0a',headline:'Watch It Come Together',caption:'From 47 parts to the perfect studio in 60 seconds. Headquarter Workstation — engineered for musicians. #Wavebone #StudioBuild #Satisfying',cta:'See Details',ctaBg:'#333',likes:'5.8K',comments:'412',badge:'V1',badgeColor:'#ccc',badgeBg:'rgba(255,255,255,0.06)',duration:'0:15',brand:'Wavebone',avatarBg:'#333',media:'creatives/260119-wavebone-物料demo/视频/260115-wavebone-ai动画-标注线(1).mp4',ratio:'16/9'}},
@@ -1494,8 +1534,8 @@ ZFX:[
     {dot:'iteration',icon:'v1',title:'V1 — Full Product Walkthrough (30s)',agent:'creative',agentColor:'purple',time:'Jan 6, 11:00',desc:'Complete product demo from signup to deploy. Too long — 72% drop-off before CTA.',metrics:[{val:'1.2%',lbl:'CTR',color:'amber'},{val:'2.4×',lbl:'ROAS',color:'amber'}],ad:{bg:'#111',headline:'Deploy in Minutes, Not Days',caption:'See how ZFX simplifies your entire CI/CD pipeline. From code to production — watch the full demo. #ZFX #DevOps',cta:'Watch Demo',ctaBg:'#333',likes:'420',comments:'31',badge:'V1',badgeColor:'#ccc',badgeBg:'rgba(255,255,255,0.06)',duration:'0:30',brand:'ZFX',avatarBg:'#333'}},
     {dot:'iteration',icon:'v2',title:'V2 — Shortened to 15s + Hook',agent:'creative',agentColor:'purple',time:'Jan 7, 14:00',desc:'Insight Agent found: 15s videos 2.3× better completion. Cut to 15s with UI animation hook in first 3s.',metrics:[{val:'1.9%',lbl:'CTR',color:'cyan'},{val:'3.6×',lbl:'ROAS',color:'cyan'}],ad:{bg:'#111',headline:'Ship Code 10× Faster',caption:'3 seconds to see why 2,000+ teams switched. One-click deploys. Zero config. #ZFX #ShipFaster',cta:'Try Free',ctaBg:'#333',likes:'890',comments:'52',badge:'V2',badgeColor:'#ccc',badgeBg:'rgba(255,255,255,0.06)',duration:'0:15',brand:'ZFX',avatarBg:'#333'}},
     {dot:'test',icon:'A/B Test',agent:'insight',agentColor:'amber',title:'A/B Test — V2 vs V2 + Social Proof',time:'Jan 8, 08:00',desc:'Testing social proof addition: "2,000+ teams" overlay at 8s mark. +47% CTR improvement with social proof variant.',ab:{leftBg:'#111',leftLabel:'V2 + PROOF',leftCtr:'2.8%',leftColor:'#e5e5e5',rightBg:'#181818',rightLabel:'V2 BASE',rightCtr:'1.9%',rightColor:'#999'}},
-    {dot:'iteration',icon:'v3',title:'V3 — 3s Hook + Social Proof + CTA @15s',agent:'creative',agentColor:'purple',time:'Jan 10, 16:00',desc:'Final formula: 3s UI animation hook → social proof counter at 8s → free trial CTA at 15s. Knowledge base updated.',metrics:[{val:'2.8%',lbl:'CTR',color:'green'},{val:'5.1×',lbl:'ROAS',color:'green'}],ad:{bg:'#111',headline:'Ship 10× Faster with ZFX',caption:'See how 2,000+ teams cut deploy time by 80%. Code to production in minutes. #ZFX #DevTools',cta:'Start Free Trial',ctaBg:'#333',likes:'1.4K',comments:'89',badge:'V3',badgeColor:'#ccc',badgeBg:'rgba(255,255,255,0.06)',duration:'0:15',brand:'ZFX',avatarBg:'#333'}},
-    {dot:'winner',icon:'↑',title:'Scaled — Gradual Scale $500 → $2K/day',agent:'budget',agentColor:'green',time:'Jan 14, 08:00',desc:'Performance maintained ±5% during 4-day scale. Trial-to-paid rate 23%. Formula documented in knowledge base for future iterations.',metrics:[{val:'2.8%',lbl:'CTR',color:'green'},{val:'5.1×',lbl:'ROAS',color:'green'},{val:'$2K',lbl:'DAILY',color:'cyan'},{val:'23%',lbl:'TRIAL→PAID',color:'green'}],ad:{bg:'#111',headline:'Ship 10× Faster with ZFX',caption:'2,000+ teams. 80% faster deploys. Start your free trial — no credit card needed. #ZFX #DevTools',cta:'Start Free Trial',ctaBg:'#333',likes:'4.2K',comments:'267',badge:'★ SCALED',badgeColor:'#ccc',badgeBg:'rgba(255,255,255,0.06)',duration:'0:15',brand:'ZFX',avatarBg:'#333'}}]},
+    {dot:'iteration',icon:'v3',title:'V3 — 3s Hook + Social Proof + CTA @15s',agent:'creative',agentColor:'purple',time:'Jan 10, 16:00',desc:'Final formula: 3s UI animation hook → social proof counter at 8s → free trial CTA at 15s. Memory updated.',metrics:[{val:'2.8%',lbl:'CTR',color:'green'},{val:'5.1×',lbl:'ROAS',color:'green'}],ad:{bg:'#111',headline:'Ship 10× Faster with ZFX',caption:'See how 2,000+ teams cut deploy time by 80%. Code to production in minutes. #ZFX #DevTools',cta:'Start Free Trial',ctaBg:'#333',likes:'1.4K',comments:'89',badge:'V3',badgeColor:'#ccc',badgeBg:'rgba(255,255,255,0.06)',duration:'0:15',brand:'ZFX',avatarBg:'#333'}},
+    {dot:'winner',icon:'↑',title:'Scaled — Gradual Scale $500 → $2K/day',agent:'budget',agentColor:'green',time:'Jan 14, 08:00',desc:'Performance maintained ±5% during 4-day scale. Trial-to-paid rate 23%. Formula documented in memory for future iterations.',metrics:[{val:'2.8%',lbl:'CTR',color:'green'},{val:'5.1×',lbl:'ROAS',color:'green'},{val:'$2K',lbl:'DAILY',color:'cyan'},{val:'23%',lbl:'TRIAL→PAID',color:'green'}],ad:{bg:'#111',headline:'Ship 10× Faster with ZFX',caption:'2,000+ teams. 80% faster deploys. Start your free trial — no credit card needed. #ZFX #DevTools',cta:'Start Free Trial',ctaBg:'#333',likes:'4.2K',comments:'267',badge:'★ SCALED',badgeColor:'#ccc',badgeBg:'rgba(255,255,255,0.06)',duration:'0:15',brand:'ZFX',avatarBg:'#333'}}]},
   {name:'#315 Customer Story',type:'Video 30s',ctr:'1.9%',roas:'—',status:'Testing',history:[
     {dot:'origin',icon:'○',title:'Customer Success — PayScale CTO',agent:'insight',agentColor:'amber',time:'Today, 08:30',desc:'PayScale case study: 80% faster deploys, 200 dev-hours saved/month. High-value testimonial for enterprise segment.'},
     {dot:'iteration',icon:'v1',title:'V1 — CTO Interview Edit',agent:'creative',agentColor:'purple',time:'Today, 09:00',desc:'30s interview with data overlays. Applying v3 lesson: social proof in first 5s.',metrics:[{val:'1.9%',lbl:'CTR',color:'cyan'}],ad:{bg:'#111',headline:'"ZFX saved us 200 hours/month"',caption:'"We went from 2-day deploys to 15 minutes. Our team can\'t imagine going back." — CTO, PayScale ',cta:'See How',ctaBg:'#333',likes:'—',comments:'—',badge:'V1',badgeColor:'#ccc',badgeBg:'rgba(255,255,255,0.06)',duration:'0:30',brand:'ZFX',avatarBg:'#333'}},
@@ -1621,9 +1661,10 @@ Object.keys(clientCreatives).forEach(name => {
   const d = clientsData[name];
   if (d && d.logs && !d.logs.some(l => l.hasCreatives)) {
     const cs = clientCreatives[name];
-    d.logs.push({time:d.tab==='completed'?'Last week':'09:35',agent:'creative',icon:'',
-      preview:`Creative pipeline — ${cs.length} variants active...`, hasCreatives:true,
-      html:`<strong>Creative pipeline active.</strong><br><br>${cs.map(c=>`• ${c.name}: <span class="${c.status==='Scaled'?'good':c.status==='Testing'?'metric':'warn'}">${c.status}</span>`).join('<br>')}<br><br><span class="code-tag">creative_engine/optimize</span>`});
+    d.logs.push({time:d.tab==='completed'?'Last week':'10:30',agent:'creative',type:'action',severity:'normal',
+      title:`Creative pipeline — ${cs.length} variants active`, hasCreatives:true,
+      body:cs.map(c=>`• ${c.name}: <strong>${c.status}</strong>`).join('<br>'),
+      apiCall:'creative_engine/optimize'});
   }
 });
 const tickerItems = [
@@ -1683,7 +1724,7 @@ function renderClients() {
     div.className = `client-item${name === activeClient ? ' active' : ''}`;
     div.innerHTML = `
       <div class="dot" style="background:var(--${c.status})"></div>
-      <div class="info"><span class="name">${name}</span><span class="meta">ROAS ${c.roas} · ${c.spent||c.cpa}</span></div>`;
+      <div class="info"><span class="name${name !== 'Wavebone' ? ' blurred' : ''}">${name}</span><span class="meta${name !== 'Wavebone' ? ' blurred' : ''}">ROAS ${c.roas} · ${c.spent||c.cpa}</span></div>`;
     div.addEventListener('click', () => selectClient(name));
     list.appendChild(div);
   });
@@ -1804,10 +1845,13 @@ function renderLogs() {
   el.classList.add('fade-swap'); setTimeout(() => el.classList.remove('fade-swap'), 400);
   const labels = {strategy:'STRATEGY',creative:'CREATIVE',budget:'BUDGET',insight:'INSIGHT'};
   const colors = {strategy:'cyan',creative:'purple',budget:'green',insight:'amber'};
-  (activeFilter==='all'?d.logs:d.logs.filter(l=>l.agent===activeFilter)).forEach((e,i) => {
+  const typeLabels = {decision:'DECISION',action:'ACTION',alert:'ALERT',insight:'INSIGHT',system:'SYSTEM'};
+  const filtered = activeFilter==='all' ? d.logs : d.logs.filter(l=>l.type===activeFilter);
+  filtered.forEach((e,i) => {
     const entry = document.createElement('div');
-    entry.className = 'log-entry entering';
+    entry.className = `log-entry entering severity-${e.severity||'normal'}`;
     entry.style.animationDelay = `${i * 0.08}s`;
+    // Creative grid
     let cr = '';
     if (e.hasCreatives) {
       const crs = clientCreatives[activeClient] || [];
@@ -1820,34 +1864,39 @@ function renderLogs() {
         return `<div class="creative-thumb${c.status==='Scaled'?' winner':c.status==='Fatigued'?' fatigued':' testing'}" style="background:${bg}" data-creative="${j}">${mediaEl}<div class="overlay">${c.name}</div></div>`;
       }).join('')}</div>`;
     }
+    // API call tag
+    let apiHtml = e.apiCall ? `<span class="log-api-tag">${e.apiCall}</span>` : '';
     entry.innerHTML = `
-      <div class="log-time">${e.time} <span class="agent-tag" style="background:var(--${colors[e.agent]}-dim);color:var(--${colors[e.agent]})">${labels[e.agent]}</span></div>
-      <div class="log-row">
-        <div class="log-bubble" data-collapsed="false"><div class="log-full">${e.html}${cr}</div><div class="log-preview">${e.preview||''}</div><span class="expand-hint">click to collapse</span></div>
-        <div class="log-agent-icon ${e.agent}" title="${labels[e.agent]} Agent">${e.icon}</div>
-      </div>`;
+      <div class="log-header">
+        ${e.time}
+        <span class="agent-tag" style="background:var(--${colors[e.agent]}-dim);color:var(--${colors[e.agent]})">${labels[e.agent]}</span>
+        <span class="type-badge">${typeLabels[e.type]||e.type}</span>
+      </div>
+      <div class="log-title">${e.title}</div>
+      <div class="log-body${e.hasCreatives?' open':''}">${e.body||''}${cr}</div>
+      ${apiHtml}`;
     el.appendChild(entry);
   });
-  // Bubble collapse/expand
-  el.querySelectorAll('.log-bubble').forEach(b => {
-    b.addEventListener('click', ev => {
-      if (ev.target.closest('.creative-thumb')||ev.target.closest('.code-tag')) return;
-      const c = b.getAttribute('data-collapsed')==='true';
-      b.classList.toggle('collapsed',!c);
-      b.setAttribute('data-collapsed', !c);
-      b.querySelector('.expand-hint').textContent = c ? 'click to collapse' : 'click to expand';
+  // Click to toggle body expand/collapse
+  el.querySelectorAll('.log-entry').forEach(entry => {
+    entry.addEventListener('click', ev => {
+      if (ev.target.closest('.creative-thumb')||ev.target.closest('.log-api-tag')) return;
+      const body = entry.querySelector('.log-body');
+      if (body) body.classList.toggle('open');
     });
   });
   // Creative lightbox
   el.querySelectorAll('.creative-thumb').forEach(t => {
     t.addEventListener('click', ev => { ev.stopPropagation(); openLightbox(+t.dataset.creative); });
   });
-  // Typing
+  // Typing indicator
   const ty = document.createElement('div'); ty.className = 'log-entry';
+  ty.style.cursor = 'default';
   const rt = d.tasks.find(t=>t.badge==='running');
   const ta = rt?rt.agent:'strategy';
-  const ti = {strategy:'',creative:'',budget:'',insight:''}[ta]||'';
-  ty.innerHTML = `<div class="log-time">now</div><div class="log-row"><div class="log-bubble" style="cursor:default"><div class="typing"><span></span><span></span><span></span></div></div><div class="log-agent-icon ${ta}">${ti}</div></div>`;
+  ty.innerHTML = `
+    <div class="log-header">now <span class="agent-tag" style="background:var(--${colors[ta]}-dim);color:var(--${colors[ta]})">${labels[ta]}</span></div>
+    <div class="log-title" style="padding-bottom:10px"><div class="typing"><span></span><span></span><span></span></div></div>`;
   el.appendChild(ty);
 }
 
@@ -2336,8 +2385,9 @@ setTimeout(() => {
     const el = document.getElementById('taskList');
     const last = el.lastElementChild;
     if(last){last.classList.add('new');last.scrollIntoView({behavior:'smooth'});}
-    d.logs.unshift({time:'09:43',agent:'insight',icon:'',preview:'Seasonal trigger — holiday gifts ↑340%...',
-      html:`<strong>Seasonal trigger.</strong><br><br>Trends: <span class="metric">"holiday gifts" ↑340%</span><br><br>Auto-creating IG Reels for 3 top clients.<br><span class="code-tag">auto_trigger/seasonal</span>`});
+    d.logs.unshift({time:'12:30',agent:'insight',type:'insight',severity:'normal',title:'Seasonal trigger — "holiday gifts" ↑340%',
+      body:`Trends: "holiday gifts" ↑340%. Auto-creating IG Reels for 3 top clients.`,
+      apiCall:'auto_trigger/seasonal'});
     renderLogs();
   }, 2000);
 }, 10000);
