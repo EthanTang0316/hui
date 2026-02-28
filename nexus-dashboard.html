@@ -1860,7 +1860,7 @@ function renderModeBar(sm) {
   el.appendChild(pills);
   const dateWrap = document.createElement('div'); dateWrap.className = 'mode-date';
   const dateInput = document.createElement('input'); dateInput.type = 'date';
-  dateInput.value = new Date().toISOString().slice(0, 10);
+  dateInput.value = '2026-02-26';
   dateWrap.appendChild(dateInput);
   el.appendChild(dateWrap);
 }
