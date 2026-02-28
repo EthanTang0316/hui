@@ -1215,7 +1215,7 @@ const clientsData = {
   Wavebone: {
     status:'green', tab:'active', roas:'3.0×', cpa:'$287.40', util:'25.9%', cpm:'$8.38', spent:'$7,759.68', budget:'$30,000', elapsed:612347, creatives:126, abTests:52, actions:238, insights:81,
     campaign:'MISSION CONTROL',
-    systemMode:{watcher:true, scheduledDiag:'14:30', executor:'active', lastEvent:120, nextDiagIn:7200, queueDepth:3},
+    systemMode:{watcher:true, scheduledDiag:'14:30', executor:'active', lastEvent:120, nextDiagIn:7200, queueDepth:1},
     milestones:[
       {pos:14, label:'Launched', reached:true},
       {pos:38, label:'CPA $300', reached:true, current:true},
@@ -2564,6 +2564,8 @@ setTimeout(() => {
   if (insEl) insEl.textContent = dd.insights.toLocaleString();
   setTimeout(() => {
     const d = clientsData[activeClient];
+    d.systemMode.queueDepth += 1;
+    renderModeBar(d.systemMode);
     // --- Append new task without full re-render ---
     const newTask = {title:'[AUTO] Seasonal Campaign: "Holiday Gifts" ↑340% — IG Reels strategy', badge:'running', agent:'insight', duration:'running', detail:'Auto-generating seasonal Reels for top 3 ROAS clients.'};
     d.tasks.push(newTask);
@@ -2628,9 +2630,6 @@ const acts = [
   ' Budget Agent: micro-optimization on TMGM — $120 to Reels',
   ' Insight Agent: frequency check — all within threshold',
   ' Strategy Agent: bid +$0.15 for Quantum high-LTV',
-  ' Creative Agent: variant #849 entered A/B test',
-  ' Budget Agent: pacing correction on Meridian',
-  ' Insight Agent: competitor scan — no new threats',
 ];
 setInterval(() => { ac++; if(ac%3===0) showToast(acts[ac%acts.length]); }, 15000);
 
