@@ -280,6 +280,7 @@
   .badge-running { background:var(--cyan-dim); color:var(--cyan); position:relative; }
   .badge-running::after { display:none; }
   .badge-pending { background:rgba(255,255,255,0.03); color:var(--text-muted); }
+  .badge-queued { background:rgba(245,158,11,0.1); color:var(--amber); }
   .task-row.is-running {
     background:rgba(255,255,255,0.02);
     border-left:2px solid var(--text-secondary);
@@ -572,17 +573,60 @@
     box-shadow:0 0 20px rgba(245,158,11,0.25);
   }
   .toast.alert .dot { background:var(--amber); }
-  .toast-confirm {
+  .toast-actions {
     display:none;
-    margin-left:8px; padding:3px 14px;
-    background:var(--amber); color:#000;
+    margin-left:8px; gap:6px; align-items:center;
+  }
+  .toast.alert .toast-actions { display:flex; }
+  .toast-confirm, .toast-reject {
+    padding:3px 14px;
     border:none; border-radius:3px;
     font-family:var(--font-mono); font-size:10px; font-weight:600;
     cursor:pointer; letter-spacing:0.5px;
     transition:opacity 0.2s;
   }
-  .toast-confirm:hover { opacity:0.85; }
-  .toast.alert .toast-confirm { display:inline-block; }
+  .toast-confirm { background:var(--amber); color:#000; }
+  .toast-reject { background:transparent; color:var(--amber); border:1px solid var(--amber); }
+  .toast-confirm:hover, .toast-reject:hover { opacity:0.75; }
+
+  /* Reject reason dialog */
+  .reject-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:250;
+    display:none; align-items:center; justify-content:center;
+    backdrop-filter:blur(4px);
+  }
+  .reject-overlay.show { display:flex; }
+  .reject-dialog {
+    background:#1a1a1a; border:1px solid var(--amber); border-radius:6px;
+    padding:20px 24px; width:380px;
+    box-shadow:0 0 30px rgba(245,158,11,0.2);
+    animation:slideUp 0.3s var(--ease-out-expo);
+  }
+  .reject-title {
+    font-family:var(--font-mono); font-size:11px; font-weight:600;
+    color:var(--amber); letter-spacing:1.5px; text-transform:uppercase;
+    margin-bottom:12px;
+  }
+  .reject-input {
+    width:100%; background:#111; border:1px solid #333; border-radius:3px;
+    color:#fff; font-family:var(--font-mono); font-size:11px;
+    padding:10px; resize:none; outline:none;
+    transition:border-color 0.2s;
+  }
+  .reject-input:focus { border-color:var(--amber); }
+  .reject-input::placeholder { color:#555; }
+  .reject-buttons {
+    display:flex; justify-content:flex-end; gap:8px; margin-top:12px;
+  }
+  .reject-cancel, .reject-submit {
+    padding:5px 16px; border-radius:3px;
+    font-family:var(--font-mono); font-size:10px; font-weight:600;
+    cursor:pointer; letter-spacing:0.5px; transition:opacity 0.2s;
+  }
+  .reject-cancel { background:transparent; color:#888; border:1px solid #444; }
+  .reject-cancel:hover { color:#fff; border-color:#666; }
+  .reject-submit { background:var(--amber); color:#000; border:none; }
+  .reject-submit:hover { opacity:0.85; }
 
   /* ═══ LIGHTBOX ═══ */
   .lightbox {
@@ -1054,7 +1098,17 @@
   </div>
 </div>
 
-<div class="toast" id="toast"><div class="dot"></div><span id="toastText"></span><button class="toast-confirm" id="toastConfirm">确认</button></div>
+<div class="toast" id="toast"><div class="dot"></div><span id="toastText"></span><div class="toast-actions" id="toastActions"><button class="toast-confirm" id="toastConfirm">Confirm</button><button class="toast-reject" id="toastReject">Reject</button></div></div>
+<div class="reject-overlay" id="rejectOverlay">
+  <div class="reject-dialog">
+    <div class="reject-title">Rejection Reason</div>
+    <textarea class="reject-input" id="rejectInput" placeholder="Enter reason for rejection..." rows="3"></textarea>
+    <div class="reject-buttons">
+      <button class="reject-cancel" id="rejectCancel">Cancel</button>
+      <button class="reject-submit" id="rejectSubmit">Submit</button>
+    </div>
+  </div>
+</div>
 
 <div class="lightbox" id="lightbox">
   <button class="lightbox-close" id="lightboxClose">×</button>
@@ -1160,9 +1214,9 @@ const clientsData = {
     ],
     tasks:[
       {num:1, title:'Market Intelligence Scan & Competitor Ad Library Analysis', badge:'completed', agent:'insight', duration:'12m', detail:'Scanned 847 competitor ads across beauty vertical. Identified 3 new entrants and 2 trending creative formats.'},
-      {num:2, title:'Performance Diagnosis — ROAS Trend, CPA Anomaly Detection', badge:'completed', agent:'strategy', duration:'8m', detail:'ROAS trending up +7.1% WoW. CPA anomaly in retargeting segment — frequency 4.1.'},
-      {num:3, title:'Audience Segment Evaluation — Lookalike vs Retargeting', badge:'completed', agent:'strategy', duration:'15m', detail:'Lookalike 25-44 performing 2.3× better than broad. Retargeting declining.'},
-      {num:4, title:'Budget Reallocation — Cross-Campaign Optimization', badge:'running', agent:'budget', duration:'running',
+      {num:2, title:'Performance Diagnosis — Spend, ROAS & CPA Efficiency', badge:'completed', agent:'strategy', duration:'8m', detail:'ROAS trending up +7.1% WoW. CPA anomaly in retargeting segment — frequency 4.1.'},
+      {num:3, title:'Audience Segment Evaluation — Broad Targeting vs. Interest Clusters', badge:'completed', agent:'strategy', duration:'15m', detail:'Lookalike 25-44 performing 2.3× better than broad. Retargeting declining.'},
+      {num:4, title:'Budget Reallocation — Cross-Campaign Optimization (Excluding "Holiday Gifts" < 3d)', badge:'running', agent:'budget', duration:'running',
         phases:[
           {text:'Phase 1: Compute marginal ROAS curves per campaign',done:true},
           {text:'Phase 2: Lagrangian relaxation with daily cap constraints',done:true},
@@ -1170,9 +1224,9 @@ const clientsData = {
           {text:'Phase 4: Verify pacing & delivery status',done:false},
         ],
         detail:'Shifting $4,200 from retargeting → lookalike. Expected +$4.2K incremental revenue.'},
-      {num:5, title:'Creative Fatigue Detection — freq > 3.5 or CTR decline ≥ 3d', badge:'completed', agent:'creative', duration:'6m', detail:'Flagged 4 creatives. Top performer #847 still strong (CTR 2.4%).'},
-      {num:6, title:'Generate 5 Holiday Video Variants (Hook × 3, CTA × 2)', badge:'running', agent:'creative', duration:'running', detail:'Generating from base creative #847. Predicted AUC: 0.81.'},
-      {num:7, title:'Quality Gate — Compliance + Predictive AUC', badge:'pending', agent:'strategy', detail:'Validate all new creatives against Meta policies.'},
+      {num:5, title:'Creative Fatigue Detection — Prospecting freq > 2.0, Retargeting freq > 4.0', badge:'completed', agent:'creative', duration:'6m', detail:'Flagged 4 creatives. Top performer #847 still strong (CTR 2.4%).'},
+      {num:6, title:'Generate 6 Holiday Video Variants — 3 Hooks · 2 CTAs', badge:'running', agent:'creative', duration:'running', detail:'Generating from base creative #847. Predicted AUC: 0.81.'},
+      {num:7, title:'Pre-Launch Compliance Check & Brand Safety Shield', badge:'pending', agent:'strategy', detail:'Validate all new creatives against Meta policies.'},
       {num:8, title:'A/B Test Setup — Video v3 vs Control', badge:'pending', agent:'strategy', detail:'Sequential test with 95% confidence threshold.'},
       {num:9, title:'Element-Level Attribution & Memory Update', badge:'pending', agent:'insight', detail:'Post-test analysis on which elements drove performance.'},
       {num:10, title:'Weekly Performance Report & Client Notification', badge:'pending', agent:'insight', detail:'Auto-generate PDF report.'},
@@ -1813,9 +1867,9 @@ function renderTasks(tasks) {
       ).join('') + '</div>';
     }
     const ac = {strategy:'cyan',creative:'purple',budget:'green',insight:'amber'}[t.agent]||'cyan';
-    const prog = t.badge==='completed'?100:t.badge==='running'?65:0;
+    const prog = t.badge==='completed'?100:t.badge==='running'?65:t.badge==='queued'?10:0;
     row.innerHTML = `
-      <span class="task-status" style="color:var(--${t.badge==='completed'?'text-secondary':t.badge==='running'?'text-primary':'text-muted'})">${t.badge==='completed'?'✓':t.badge==='running'?'▸':'○'}</span>
+      <span class="task-status" style="color:var(--${t.badge==='completed'?'text-secondary':t.badge==='running'?'text-primary':t.badge==='queued'?'amber':'text-muted'})">${t.badge==='completed'?'✓':t.badge==='running'?'▸':t.badge==='queued'?'◈':'○'}</span>
       <div class="task-content">
         <span class="title">${t.title}</span>${ph}
         <div class="task-detail${expandedTask===t.title?' open':''}">
@@ -1828,7 +1882,7 @@ function renderTasks(tasks) {
           </div>
         </div>
       </div>
-      <span class="task-badge badge-${t.badge}">${t.badge==='completed'?'Done':t.badge==='running'?'Running':''}</span>`;
+      <span class="task-badge badge-${t.badge}">${t.badge==='completed'?'Done':t.badge==='running'?'Running':t.badge==='queued'?'Queued':''}</span>`;
     row.addEventListener('click', () => {
       expandedTask = expandedTask === t.title ? null : t.title;
       document.querySelectorAll('.task-detail').forEach(d=>d.classList.remove('open'));
@@ -1917,10 +1971,13 @@ function renderKpis() {
   const utilCurve = [0.01,0.03,0.02,0.05,0.10,0.08,0.18,0.30,0.44,0.56,0.67,0.76,0.83,0.88,0.92,0.95,0.98,1.00].map(r=>+(utilV*r).toFixed(0));
   // CPM: 平滑上升趋势，带轻微自然波动（比原来更平滑）
   const cpmCurve = [0.83,0.86,0.84,0.88,0.90,0.89,0.92,0.94,0.93,0.95,0.97,0.96,0.98,0.97,0.99,0.98,1.00,1.00].map(r=>+(cpmV*r).toFixed(2));
+  // Spend: 累计花费曲线 — 缓慢起步 → 加速投放 → 接近当前花费
+  const spentRaw = d.spent ? parseFloat(d.spent.replace(/[$,]/g,'')) : 0;
+  const spendCurve = [0.01,0.03,0.05,0.08,0.12,0.17,0.24,0.32,0.41,0.51,0.60,0.69,0.77,0.84,0.89,0.93,0.97,1.00].map(r=>+(spentRaw*r).toFixed(0));
   const kpis = [
+    {key:'spend',value:d.spent||'$0',label:'SPEND',color:'cyan',chartData:utilCurve,chartColor:'rgb(170,170,170)',detail:`Budget: ${d.budget||'—'} · Util: ${d.util}`},
     {key:'roas',value:d.roas,label:'ROAS',color:'green',chartData:roasCurve,chartColor:'rgb(200,200,200)',detail:`Target: 2.5×`},
     {key:'cpa',value:d.cpa,label:'AVG CPA',color:'cyan',chartData:cpaCurve,chartColor:'rgb(180,180,180)',detail:`Target: $300`},
-    {key:'util',value:d.util,label:'BUDGET UTIL',color:'cyan',chartData:utilCurve,chartColor:'rgb(160,160,160)',detail:d.spent?`Spent: ${d.spent} / ${d.budget}`:`Remaining: ${100-utilV}%`},
     {key:'cpm',value:d.cpm,label:'CPM',color:'white',chartData:cpmCurve,chartColor:'rgb(140,140,140)',detail:`Target: $6.00`},
   ];
   kpis.forEach((k,idx) => {
@@ -1944,12 +2001,14 @@ function renderKpis() {
       const num = parseFloat(raw.replace(/[^0-9.]/g, ''));
       if (isNaN(num)) { el.textContent = raw; return; }
       const decimals = (raw.match(/\.(\d+)/)?.[1]||'').length;
+      const hasComma = /,/.test(raw);
       const dur = 800;
       const start = performance.now();
       function tick(now) {
         const t = Math.min((now - start) / dur, 1);
         const ease = 1 - Math.pow(1 - t, 3);
-        const val = (num * ease).toFixed(decimals);
+        let val = (num * ease).toFixed(decimals);
+        if (hasComma) val = Number(val).toLocaleString('en-US', {minimumFractionDigits:decimals, maximumFractionDigits:decimals});
         el.textContent = prefix + val + suffix;
         if (t < 1) requestAnimationFrame(tick);
       }
@@ -2250,6 +2309,11 @@ function drawSparkline(id, data, color) {
 const toast = document.getElementById('toast');
 const toastText = document.getElementById('toastText');
 const toastConfirm = document.getElementById('toastConfirm');
+const toastReject = document.getElementById('toastReject');
+const rejectOverlay = document.getElementById('rejectOverlay');
+const rejectInput = document.getElementById('rejectInput');
+const rejectCancel = document.getElementById('rejectCancel');
+const rejectSubmit = document.getElementById('rejectSubmit');
 let toastTimer;
 let alertActive = false;
 
@@ -2271,10 +2335,46 @@ function showAlert(msg) {
   particleSys.pulse();
 }
 
-toastConfirm.addEventListener('click', (e) => {
-  e.stopPropagation();
+function dismissAlert() {
   toast.classList.remove('show', 'alert');
   alertActive = false;
+}
+
+toastConfirm.addEventListener('click', (e) => {
+  e.stopPropagation();
+  dismissAlert();
+  const d = clientsData[activeClient];
+  d.actions += 1;
+  const actEl = document.getElementById('valActions');
+  if (actEl) actEl.textContent = d.actions.toLocaleString();
+  showToast('Delivery confirmed — pacing unchanged.');
+});
+
+toastReject.addEventListener('click', (e) => {
+  e.stopPropagation();
+  rejectInput.value = '';
+  rejectOverlay.classList.add('show');
+  setTimeout(() => rejectInput.focus(), 100);
+});
+
+rejectCancel.addEventListener('click', () => {
+  rejectOverlay.classList.remove('show');
+});
+
+rejectOverlay.addEventListener('click', (e) => {
+  if (e.target === rejectOverlay) rejectOverlay.classList.remove('show');
+});
+
+rejectSubmit.addEventListener('click', () => {
+  const reason = rejectInput.value.trim();
+  rejectOverlay.classList.remove('show');
+  dismissAlert();
+  showToast(reason ? 'Delivery paused — reason logged.' : 'Delivery paused.');
+});
+
+rejectInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); rejectSubmit.click(); }
+  if (e.key === 'Escape') rejectCancel.click();
 });
 
 toast.addEventListener('click', () => {
@@ -2380,7 +2480,7 @@ setTimeout(() => {
   showToast(' Insight Agent detected seasonal signal — creating new task...');
   setTimeout(() => {
     const d = clientsData[activeClient];
-    d.tasks.push({title:'[AUTO] Seasonal Campaign: "Holiday Gifts" ↑340% — IG Reels strategy', badge:'running', agent:'insight', duration:'running', detail:'Auto-generating seasonal Reels for top 3 ROAS clients.'});
+    d.tasks.push({title:'[AUTO] Seasonal Campaign: "Holiday Gifts" ↑340% — Waiting for Creative', badge:'queued', agent:'insight', duration:'queued', detail:'Scheduled IG Reels strategy for top 3 ROAS clients. Pending creative generation (Task 6) + Quality Gate.'});
     renderTasks(d.tasks);
     const el = document.getElementById('taskList');
     const last = el.lastElementChild;
@@ -2405,7 +2505,7 @@ const acts = [
 setInterval(() => { ac++; if(ac%3===0) showToast(acts[ac%acts.length]); }, 15000);
 
 setTimeout(() => {
-  showAlert('⚠ TMGM 账户花费异常：过去1小时超出日预算 47%，请确认是否继续投放');
+  showAlert('⚠ Wavebone Pacing Alert: Spend velocity +47% vs. historical avg. Confirm continued delivery?');
 }, 25000);
 </script>
 </body>
