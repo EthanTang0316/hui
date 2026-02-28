@@ -1216,7 +1216,7 @@ const clientsData = {
       {num:1, title:'Market Intelligence Scan & Competitor Ad Library Analysis', badge:'completed', agent:'insight', duration:'12m', detail:'Scanned 847 competitor ads across beauty vertical. Identified 3 new entrants and 2 trending creative formats.'},
       {num:2, title:'Performance Diagnosis — Spend, ROAS & CPA Efficiency', badge:'completed', agent:'strategy', duration:'8m', detail:'ROAS trending up +7.1% WoW. CPA anomaly in retargeting segment — frequency 4.1.'},
       {num:3, title:'Audience Segment Evaluation — Broad Targeting vs. Interest Clusters', badge:'completed', agent:'strategy', duration:'15m', detail:'Lookalike 25-44 performing 2.3× better than broad. Retargeting declining.'},
-      {num:4, title:'Budget Reallocation — Cross-Campaign Optimization (Excluding "Holiday Gifts" < 3d)', badge:'running', agent:'budget', duration:'running',
+      {num:4, title:'Budget Reallocation — Cross-Campaign Optimization', badge:'running', agent:'budget', duration:'running',
         phases:[
           {text:'Phase 1: Compute marginal ROAS curves per campaign',done:true},
           {text:'Phase 2: Lagrangian relaxation with daily cap constraints',done:true},
@@ -1227,9 +1227,8 @@ const clientsData = {
       {num:5, title:'Creative Fatigue Detection — Prospecting freq > 2.0, Retargeting freq > 4.0', badge:'completed', agent:'creative', duration:'6m', detail:'Flagged 4 creatives. Top performer #847 still strong (CTR 2.4%).'},
       {num:6, title:'Generate 6 Holiday Video Variants — 3 Hooks · 2 CTAs', badge:'running', agent:'creative', duration:'running', detail:'Generating from base creative #847. Predicted AUC: 0.81.'},
       {num:7, title:'Pre-Launch Compliance Check & Brand Safety Shield', badge:'pending', agent:'strategy', detail:'Validate all new creatives against Meta policies.'},
-      {num:8, title:'A/B Test Setup — Video v3 vs Control', badge:'pending', agent:'strategy', detail:'Sequential test with 95% confidence threshold.'},
-      {num:9, title:'Element-Level Attribution & Memory Update', badge:'pending', agent:'insight', detail:'Post-test analysis on which elements drove performance.'},
-      {num:10, title:'Weekly Performance Report & Client Notification', badge:'pending', agent:'insight', detail:'Auto-generate PDF report.'},
+      {num:8, title:'A/B Test Setup — Variant v3 (Hook Optimized) vs. Global Control', badge:'pending', agent:'strategy', detail:'Sequential test with 95% confidence threshold.'},
+      {num:9, title:'Weekly Performance Report & Client Notification', badge:'pending', agent:'insight', detail:'Auto-generate PDF report.'},
     ],
     logs:[
       {time:'12:28', agent:'budget', type:'action', severity:'normal', title:'Budget reallocation executing — shifting $320 to carousel',
@@ -2330,6 +2329,7 @@ function showToast(msg) {
 function showAlert(msg) {
   clearTimeout(toastTimer);
   alertActive = true;
+  pauseActions();
   toastText.textContent = msg;
   toast.classList.add('show', 'alert');
   particleSys.pulse();
@@ -2338,6 +2338,7 @@ function showAlert(msg) {
 function dismissAlert() {
   toast.classList.remove('show', 'alert');
   alertActive = false;
+  setTimeout(() => incrementActions(), 38000);
 }
 
 toastConfirm.addEventListener('click', (e) => {
@@ -2468,12 +2469,15 @@ function renderBottomMetrics() {
 
 setTimeout(() => renderBottomMetrics(), 150);
 
-setInterval(() => {
+let actionsInterval = setInterval(incrementActions, 30000);
+function incrementActions() {
   const d = clientsData[activeClient];
   d.actions += 1;
   const el = document.getElementById('valActions');
   if (el) el.textContent = d.actions.toLocaleString();
-}, 30000);
+}
+function pauseActions() { clearInterval(actionsInterval); }
+function resumeActions() { clearInterval(actionsInterval); actionsInterval = setInterval(incrementActions, 30000); }
 
 // ═══ AUTO DEMO ═══
 setTimeout(() => {
