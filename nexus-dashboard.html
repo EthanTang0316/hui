@@ -1204,7 +1204,7 @@ const particleSys = (function initParticles() {
 // ═══════════════════════════════════════
 const clientsData = {
   Wavebone: {
-    status:'green', tab:'active', roas:'3.0×', cpa:'$287.40', util:'25.9%', cpm:'$8.38', spent:'$7,759.68', budget:'$30,000', elapsed:612347, creatives:368, abTests:137, actions:587, insights:19,
+    status:'green', tab:'active', roas:'3.0×', cpa:'$287.40', util:'25.9%', cpm:'$8.38', spent:'$7,759.68', budget:'$30,000', elapsed:612347, creatives:126, abTests:52, actions:238, insights:81,
     campaign:'MISSION CONTROL',
     systemMode:{watcher:true, scheduledDiag:'14:30', executor:'active', lastEvent:120, nextDiagIn:7200, queueDepth:3},
     milestones:[
@@ -1225,12 +1225,13 @@ const clientsData = {
         ],
         detail:'Shifting $4,200 from retargeting → lookalike. Expected +$4.2K incremental revenue.'},
       {num:5, title:'Creative Fatigue Detection — Prospecting freq > 2.0, Retargeting freq > 4.0', badge:'completed', agent:'creative', duration:'6m', detail:'Flagged 4 creatives. Top performer #847 still strong (CTR 2.4%).'},
-      {num:6, title:'Generate 6 Holiday Video Variants — 3 Hooks · 2 CTAs', badge:'running', agent:'creative', duration:'running', detail:'Generating from base creative #847. Predicted AUC: 0.81.'},
-      {num:7, title:'Pre-Launch Compliance Check & Brand Safety Shield', badge:'pending', agent:'strategy', detail:'Validate all new creatives against Meta policies.'},
-      {num:8, title:'A/B Test Setup — Variant v3 (Hook Optimized) vs. Global Control', badge:'pending', agent:'strategy', detail:'Sequential test with 95% confidence threshold.'},
-      {num:9, title:'Weekly Performance Report & Client Notification', badge:'pending', agent:'insight', detail:'Auto-generate PDF report.'},
+      {num:6, title:'Pre-Launch Compliance Check & Brand Safety Shield', badge:'completed', agent:'strategy', duration:'4m', detail:'All 6 creatives passed Meta policy check and brand safety scan.'},
+      {num:7, title:'Weekly Performance Report & Client Notification', badge:'pending', agent:'insight', detail:'Auto-generate PDF report.'},
     ],
     logs:[
+      {time:'12:35', agent:'creative', type:'action', severity:'normal', title:'Creative optimization triggered — diagnosing 6 creatives, 3 flagged for refresh', hasCreatives:true,
+        body:`Diagnose findings → creative audit initiated. Scanning 6 active creatives against fatigue & CTR thresholds:<br><br>• #301 Annotation Showcase: <b>Scaled</b> — CTR 2.48%, ROAS 3.2× · Frequency 1.8 · ✓ Healthy<br>• #305 Assembly Animation: <b>Testing</b> — CTR 3.18%, ROAS improving · Frequency 1.2 · ✓ Scaling candidate<br>• #308 Before/After: <b>Testing</b> — CTR 2.83%, near ROAS target · Frequency 2.1 · ✓ Hold<br>• #312 Product Carousel: <b>Scaled</b> — CTR 3.11%, highest spend · Frequency 2.4 · ⚠ Approaching fatigue<br>• #315 UGC Testimonial: <b>Fatigued</b> — CTR 1.62% ↓38% WoW · Frequency 4.3 · ✗ Paused, queued for variant refresh<br>• #319 Lifestyle Studio Shot: <b>Fatigued</b> — CTR 1.41% ↓45% WoW · Frequency 3.9 · ✗ Retired, replacement queued<br><br>Action: Paused #315 & #319. Reallocating $420/day to #305 (scaling) and #312 (top spend). Creative Agent generating 2 replacement variants from top-performer elements.`,
+        apiCall:'creative_engine/optimize'},
       {time:'12:28', agent:'budget', type:'action', severity:'normal', title:'Budget reallocation executing — shifting $320 to carousel',
         body:`Shifting $320 from broad targeting → carousel + annotation retargeting pipeline. Carousel #312 ROAS 2.8×, assembly animation 1.2× — holding spend. Expected +$1.8K weekly revenue.`,
         apiCall:'marketing_api/budget_shift'},
@@ -1243,9 +1244,6 @@ const clientsData = {
         apiCall:'alert/cpa_anomaly'},
       {time:'11:02', agent:'insight', type:'insight', severity:'normal', title:'Web: Mixonline NAMM 2026 roundup — studio furniture spillover attention',
         body:`NAMM 2026 show floor coverage driving category-level search volume. Studio furniture/gear getting spillover.`},
-      {time:'10:22', agent:'creative', type:'action', severity:'normal', title:'Creative optimization triggered — diagnosing 6 creatives, 3 flagged for refresh', hasCreatives:true,
-        body:`Diagnose findings → creative audit initiated. Scanning 6 active creatives against fatigue & CTR thresholds:<br><br>• #301 Annotation Showcase: <b>Scaled</b> — CTR 2.48%, ROAS 3.2× · Frequency 1.8 · ✓ Healthy<br>• #305 Assembly Animation: <b>Testing</b> — CTR 3.18%, ROAS improving · Frequency 1.2 · ✓ Scaling candidate<br>• #308 Before/After: <b>Testing</b> — CTR 2.83%, near ROAS target · Frequency 2.1 · ✓ Hold<br>• #312 Product Carousel: <b>Scaled</b> — CTR 3.11%, highest spend · Frequency 2.4 · ⚠ Approaching fatigue<br>• #315 UGC Testimonial: <b>Fatigued</b> — CTR 1.62% ↓38% WoW · Frequency 4.3 · ✗ Paused, queued for variant refresh<br>• #319 Lifestyle Studio Shot: <b>Fatigued</b> — CTR 1.41% ↓45% WoW · Frequency 3.9 · ✗ Retired, replacement queued<br><br>Action: Paused #315 & #319. Reallocating $420/day to #305 (scaling) and #312 (top spend). Creative Agent generating 2 replacement variants from top-performer elements.`,
-        apiCall:'creative_engine/optimize'},
       {time:'10:08', agent:'strategy', type:'insight', severity:'normal', title:'Diagnose complete — 5 findings, creative refresh recommended',
         body:`Full diagnostic scan completed. Key findings:<br><br>1. <b>ROAS trending up +7.1% WoW</b> — driven by lookalike 25-44 segment outperforming broad by 2.3×<br>2. <b>Retargeting frequency at 4.1</b> — above 3.0 threshold, creative fatigue confirmed in 2 ad sets<br>3. <b>CPM stable at $8.38</b> — auction pressure normal, no competitor bid spikes detected<br>4. <b>Top-of-funnel CTR divergence</b> — Reels +41% vs Feed; recommend shifting 15% of Feed budget to Reels<br>5. <b>2 creatives below CTR floor</b> (#315, #319) — triggering creative optimization pipeline<br><br>→ Dispatching to Creative Agent for variant audit and refresh cycle.`},
       {time:'10:00', agent:'strategy', type:'action', severity:'normal', title:'Scheduled diagnose triggered — full performance scan',
@@ -1899,7 +1897,7 @@ function renderLogs() {
   const labels = {strategy:'STRATEGY',creative:'CREATIVE',budget:'BUDGET',insight:'INSIGHT'};
   const colors = {strategy:'cyan',creative:'purple',budget:'green',insight:'amber'};
   const typeLabels = {decision:'DECISION',action:'ACTION',alert:'ALERT',insight:'INSIGHT',system:'SYSTEM'};
-  const filtered = (activeFilter==='all' ? d.logs.slice() : d.logs.filter(l=>l.type===activeFilter)).reverse();
+  const filtered = activeFilter==='all' ? d.logs : d.logs.filter(l=>l.type===activeFilter);
   filtered.forEach((e,i) => {
     const entry = document.createElement('div');
     entry.className = `log-entry entering severity-${e.severity||'normal'}`;
@@ -2485,24 +2483,23 @@ setTimeout(() => {
   setTimeout(() => {
     const d = clientsData[activeClient];
     // --- Append new task without full re-render ---
-    const newTask = {title:'[AUTO] Seasonal Campaign: "Holiday Gifts" ↑340% — Waiting for Creative', badge:'queued', agent:'insight', duration:'queued', detail:'Scheduled IG Reels strategy for top 3 ROAS clients. Pending creative generation (Task 6) + Quality Gate.'};
+    const newTask = {title:'[AUTO] Seasonal Campaign: "Holiday Gifts" ↑340% — IG Reels strategy', badge:'running', agent:'insight', duration:'running', detail:'Auto-generating seasonal Reels for top 3 ROAS clients.'};
     d.tasks.push(newTask);
     const taskEl = document.getElementById('taskList');
     const row = document.createElement('div');
-    row.className = 'task-row';
-    const ac = 'amber';
+    row.className = 'task-row is-running';
     row.innerHTML = `
-      <span class="task-status" style="color:var(--amber)">◈</span>
+      <span class="task-status" style="color:var(--text-primary)">▸</span>
       <div class="task-content">
         <span class="title">${newTask.title}</span>
         <div class="task-detail"><div class="task-detail-inner">
           <div class="detail-row"><span class="detail-label">AGENT</span><span class="agent-chip" style="background:var(--amber-dim);color:var(--amber)">${newTask.agent}</span></div>
-          <div class="detail-row"><span class="detail-label">PROGRESS</span><span class="detail-value" style="color:var(--amber)">10%</span></div>
-          <div class="detail-bar"><div class="fill" style="width:10%;background:var(--text-muted)"></div></div>
+          <div class="detail-row"><span class="detail-label">PROGRESS</span><span class="detail-value" style="color:var(--amber)">65%</span></div>
+          <div class="detail-bar"><div class="fill" style="width:65%;background:var(--text-muted)"></div></div>
           <p style="font-size:10px;color:var(--text-muted);line-height:1.5">${newTask.detail}</p>
         </div></div>
       </div>
-      <span class="task-badge badge-queued">Queued</span>`;
+      <span class="task-badge badge-running">Running</span>`;
     row.style.opacity = '0'; row.style.transform = 'translateY(8px)';
     row.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
     row.addEventListener('click', () => {
