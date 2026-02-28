@@ -1900,7 +1900,7 @@ function renderLogs() {
   const labels = {strategy:'STRATEGY',creative:'CREATIVE',budget:'BUDGET',insight:'INSIGHT'};
   const colors = {strategy:'cyan',creative:'purple',budget:'green',insight:'amber'};
   const typeLabels = {decision:'DECISION',action:'ACTION',alert:'ALERT',insight:'INSIGHT',system:'SYSTEM'};
-  const filtered = activeFilter==='all' ? d.logs : d.logs.filter(l=>l.type===activeFilter);
+  const filtered = (activeFilter==='all' ? d.logs.slice() : d.logs.filter(l=>l.type===activeFilter)).reverse();
   filtered.forEach((e,i) => {
     const entry = document.createElement('div');
     entry.className = `log-entry entering severity-${e.severity||'normal'}`;
@@ -2534,7 +2534,7 @@ setTimeout(() => {
       const body = entry.querySelector('.log-body');
       if(body) body.classList.toggle('open');
     });
-    logEl.insertBefore(entry, logEl.firstChild);
+    logEl.insertBefore(entry, logEl.lastChild);
     requestAnimationFrame(()=>{entry.style.opacity='1';entry.style.transform='translateY(0)';});
   }, 2000);
 }, 10000);
