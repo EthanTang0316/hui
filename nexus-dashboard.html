@@ -2624,14 +2624,6 @@ setTimeout(() => {
   }, 2000);
 }, 10000);
 
-// Periodic activity
-let ac = 0;
-const acts = [
-  ' Budget Agent: micro-optimization on TMGM — $120 to Reels',
-  ' Insight Agent: frequency check — all within threshold',
-  ' Strategy Agent: bid +$0.15 for Quantum high-LTV',
-];
-setInterval(() => { ac++; if(ac%3===0) showToast(acts[ac%acts.length]); }, 15000);
 
 setTimeout(() => {
   showAlert('⚠ Wavebone Adset 120242611450230531: Spend velocity +47% vs. historical avg. Confirm continued delivery?');
