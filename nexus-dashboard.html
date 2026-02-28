@@ -2480,15 +2480,62 @@ setTimeout(() => {
   showToast(' Insight Agent detected seasonal signal — creating new task...');
   setTimeout(() => {
     const d = clientsData[activeClient];
-    d.tasks.push({title:'[AUTO] Seasonal Campaign: "Holiday Gifts" ↑340% — Waiting for Creative', badge:'queued', agent:'insight', duration:'queued', detail:'Scheduled IG Reels strategy for top 3 ROAS clients. Pending creative generation (Task 6) + Quality Gate.'});
-    renderTasks(d.tasks);
-    const el = document.getElementById('taskList');
-    const last = el.lastElementChild;
-    if(last){last.classList.add('new');last.scrollIntoView({behavior:'smooth'});}
-    d.logs.unshift({time:'12:30',agent:'insight',type:'insight',severity:'normal',title:'Seasonal trigger — "holiday gifts" ↑340%',
+    // --- Append new task without full re-render ---
+    const newTask = {title:'[AUTO] Seasonal Campaign: "Holiday Gifts" ↑340% — Waiting for Creative', badge:'queued', agent:'insight', duration:'queued', detail:'Scheduled IG Reels strategy for top 3 ROAS clients. Pending creative generation (Task 6) + Quality Gate.'};
+    d.tasks.push(newTask);
+    const taskEl = document.getElementById('taskList');
+    const row = document.createElement('div');
+    row.className = 'task-row';
+    const ac = 'amber';
+    row.innerHTML = `
+      <span class="task-status" style="color:var(--amber)">◈</span>
+      <div class="task-content">
+        <span class="title">${newTask.title}</span>
+        <div class="task-detail"><div class="task-detail-inner">
+          <div class="detail-row"><span class="detail-label">AGENT</span><span class="agent-chip" style="background:var(--amber-dim);color:var(--amber)">${newTask.agent}</span></div>
+          <div class="detail-row"><span class="detail-label">PROGRESS</span><span class="detail-value" style="color:var(--amber)">10%</span></div>
+          <div class="detail-bar"><div class="fill" style="width:10%;background:var(--text-muted)"></div></div>
+          <p style="font-size:10px;color:var(--text-muted);line-height:1.5">${newTask.detail}</p>
+        </div></div>
+      </div>
+      <span class="task-badge badge-queued">Queued</span>`;
+    row.style.opacity = '0'; row.style.transform = 'translateY(8px)';
+    row.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+    row.addEventListener('click', () => {
+      expandedTask = expandedTask===newTask.title?null:newTask.title;
+      document.querySelectorAll('.task-detail').forEach(d=>d.classList.remove('open'));
+      document.querySelectorAll('.task-row').forEach(r=>r.classList.remove('expanded'));
+      if(expandedTask){row.querySelector('.task-detail').classList.add('open');row.classList.add('expanded');}
+    });
+    taskEl.appendChild(row);
+    requestAnimationFrame(()=>{row.style.opacity='1';row.style.transform='translateY(0)';});
+    row.scrollIntoView({behavior:'smooth'});
+
+    // --- Prepend new log without full re-render ---
+    const newLog = {time:'12:30',agent:'insight',type:'insight',severity:'normal',title:'Seasonal trigger — "holiday gifts" ↑340%',
       body:`Trends: "holiday gifts" ↑340%. Auto-creating IG Reels for 3 top clients.`,
-      apiCall:'auto_trigger/seasonal'});
-    renderLogs();
+      apiCall:'auto_trigger/seasonal'};
+    d.logs.unshift(newLog);
+    const logEl = document.getElementById('agentLog');
+    const entry = document.createElement('div');
+    entry.className = 'log-entry entering severity-normal';
+    entry.style.opacity = '0'; entry.style.transform = 'translateY(-8px)';
+    entry.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+    const labels = {strategy:'STRATEGY',creative:'CREATIVE',budget:'BUDGET',insight:'INSIGHT'};
+    const colors = {strategy:'cyan',creative:'purple',budget:'green',insight:'amber'};
+    const typeLabels = {decision:'DECISION',action:'ACTION',alert:'ALERT',insight:'INSIGHT',system:'SYSTEM'};
+    entry.innerHTML = `
+      <div class="log-header">${newLog.time} <span class="agent-tag" style="background:var(--${colors[newLog.agent]}-dim);color:var(--${colors[newLog.agent]})">${labels[newLog.agent]}</span><span class="type-badge">${typeLabels[newLog.type]}</span></div>
+      <div class="log-title">${newLog.title}</div>
+      <div class="log-body">${newLog.body}</div>
+      <span class="log-api-tag">${newLog.apiCall}</span>`;
+    entry.addEventListener('click', ev => {
+      if(ev.target.closest('.log-api-tag')) return;
+      const body = entry.querySelector('.log-body');
+      if(body) body.classList.toggle('open');
+    });
+    logEl.insertBefore(entry, logEl.firstChild);
+    requestAnimationFrame(()=>{entry.style.opacity='1';entry.style.transform='translateY(0)';});
   }, 2000);
 }, 10000);
 
