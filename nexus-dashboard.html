@@ -242,6 +242,15 @@
   .mode-pill.on.has-queue .mode-dot { background:var(--cyan); }
   .mode-bar-sep { width:1px; height:24px; background:var(--border-lite); flex-shrink:0; }
   .mode-metrics { display:flex; gap:16px; flex:1; justify-content:flex-end; }
+  .mode-date { margin-left:auto; display:flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:10px; color:var(--text-muted); }
+  .mode-date input[type="date"] {
+    background:var(--elevated); border:1px solid var(--border-lite); border-radius:6px;
+    color:var(--text-secondary); font-family:var(--font-mono); font-size:10px;
+    padding:4px 8px; outline:none; cursor:pointer; transition:border-color 0.2s;
+  }
+  .mode-date input[type="date"]:hover { border-color:var(--border-glow); }
+  .mode-date input[type="date"]:focus { border-color:var(--cyan); }
+  .mode-date input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(0.7); cursor:pointer; }
   .mode-metric {
     display:flex; align-items:center; gap:5px;
     font-family:var(--font-mono); font-size:9px; color:var(--text-muted);
@@ -1849,6 +1858,11 @@ function renderModeBar(sm) {
   const execLabel = hasQueue ? 'EXECUTOR <span class="mode-hi cyan">' + sm.queueDepth + ' tasks in queue</span>' : 'EXECUTOR Idle';
   pills.appendChild(buildModePill('executor', execLabel, hasQueue, hasQueue));
   el.appendChild(pills);
+  const dateWrap = document.createElement('div'); dateWrap.className = 'mode-date';
+  const dateInput = document.createElement('input'); dateInput.type = 'date';
+  dateInput.value = new Date().toISOString().slice(0, 10);
+  dateWrap.appendChild(dateInput);
+  el.appendChild(dateWrap);
 }
 
 function renderTasks(tasks) {
@@ -1940,15 +1954,6 @@ function renderLogs() {
   el.querySelectorAll('.creative-thumb').forEach(t => {
     t.addEventListener('click', ev => { ev.stopPropagation(); openLightbox(+t.dataset.creative); });
   });
-  // Typing indicator
-  const ty = document.createElement('div'); ty.className = 'log-entry';
-  ty.style.cursor = 'default';
-  const rt = d.tasks.find(t=>t.badge==='running');
-  const ta = rt?rt.agent:'strategy';
-  ty.innerHTML = `
-    <div class="log-header">now <span class="agent-tag" style="background:var(--${colors[ta]}-dim);color:var(--${colors[ta]})">${labels[ta]}</span></div>
-    <div class="log-title" style="padding-bottom:10px"><div class="typing"><span></span><span></span><span></span></div></div>`;
-  el.appendChild(ty);
 }
 
 function renderKpis() {
@@ -2590,7 +2595,7 @@ setTimeout(() => {
     row.scrollIntoView({behavior:'smooth'});
 
     // --- Prepend new log without full re-render ---
-    const newLog = {time:'12:30',agent:'insight',type:'insight',severity:'normal',title:'Seasonal trigger — "holiday gifts" ↑340%',
+    const newLog = {time:'12:58',agent:'insight',type:'insight',severity:'normal',title:'Seasonal trigger — "holiday gifts" ↑340%',
       body:`Trends: "holiday gifts" ↑340%. Auto-creating IG Reels for 3 top clients.`,
       apiCall:'auto_trigger/seasonal'};
     d.logs.unshift(newLog);
@@ -2612,7 +2617,7 @@ setTimeout(() => {
       const body = entry.querySelector('.log-body');
       if(body) body.classList.toggle('open');
     });
-    logEl.insertBefore(entry, logEl.lastChild);
+    logEl.insertBefore(entry, logEl.firstChild);
     requestAnimationFrame(()=>{entry.style.opacity='1';entry.style.transform='translateY(0)';});
   }, 2000);
 }, 10000);
