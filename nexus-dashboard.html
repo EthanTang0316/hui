@@ -279,6 +279,7 @@
   .badge-running { background:var(--cyan-dim); color:var(--cyan); position:relative; }
   .badge-running::after { display:none; }
   .badge-pending { background:rgba(255,255,255,0.03); color:var(--text-muted); }
+  .badge-queued { background:rgba(245,158,11,0.1); color:var(--amber); }
   .task-row.is-running {
     background:rgba(255,255,255,0.02);
     border-left:2px solid var(--text-secondary);
@@ -1212,7 +1213,7 @@ const clientsData = {
       {num:1, title:'Market Intelligence Scan & Competitor Ad Library Analysis', badge:'completed', agent:'insight', duration:'12m', detail:'Scanned 847 competitor ads across beauty vertical. Identified 3 new entrants and 2 trending creative formats.'},
       {num:2, title:'Performance Diagnosis — Spend, ROAS & CPA Efficiency', badge:'completed', agent:'strategy', duration:'8m', detail:'ROAS trending up +7.1% WoW. CPA anomaly in retargeting segment — frequency 4.1.'},
       {num:3, title:'Audience Segment Evaluation — Broad Targeting vs. Interest Clusters', badge:'completed', agent:'strategy', duration:'15m', detail:'Lookalike 25-44 performing 2.3× better than broad. Retargeting declining.'},
-      {num:4, title:'Budget Reallocation — Cross-Campaign Optimization', badge:'running', agent:'budget', duration:'running',
+      {num:4, title:'Budget Reallocation — Cross-Campaign Optimization (Excluding "Holiday Gifts" < 3d)', badge:'running', agent:'budget', duration:'running',
         phases:[
           {text:'Phase 1: Compute marginal ROAS curves per campaign',done:true},
           {text:'Phase 2: Lagrangian relaxation with daily cap constraints',done:true},
@@ -1220,9 +1221,9 @@ const clientsData = {
           {text:'Phase 4: Verify pacing & delivery status',done:false},
         ],
         detail:'Shifting $4,200 from retargeting → lookalike. Expected +$4.2K incremental revenue.'},
-      {num:5, title:'Creative Fatigue Detection — freq > 3.5 or CTR decline ≥ 3d', badge:'completed', agent:'creative', duration:'6m', detail:'Flagged 4 creatives. Top performer #847 still strong (CTR 2.4%).'},
-      {num:6, title:'Generate 5 Holiday Video Variants (Hook × 3, CTA × 2)', badge:'running', agent:'creative', duration:'running', detail:'Generating from base creative #847. Predicted AUC: 0.81.'},
-      {num:7, title:'Quality Gate — Compliance + Predictive AUC', badge:'pending', agent:'strategy', detail:'Validate all new creatives against Meta policies.'},
+      {num:5, title:'Creative Fatigue Detection — Prospecting freq > 2.0, Retargeting freq > 4.0', badge:'completed', agent:'creative', duration:'6m', detail:'Flagged 4 creatives. Top performer #847 still strong (CTR 2.4%).'},
+      {num:6, title:'Generate 6 Holiday Video Variants — 3 Hooks · 2 CTAs', badge:'running', agent:'creative', duration:'running', detail:'Generating from base creative #847. Predicted AUC: 0.81.'},
+      {num:7, title:'Pre-Launch Compliance Check & Brand Safety Shield', badge:'pending', agent:'strategy', detail:'Validate all new creatives against Meta policies.'},
       {num:8, title:'A/B Test Setup — Video v3 vs Control', badge:'pending', agent:'strategy', detail:'Sequential test with 95% confidence threshold.'},
       {num:9, title:'Element-Level Attribution & Knowledge Base Update', badge:'pending', agent:'insight', detail:'Post-test analysis on which elements drove performance.'},
       {num:10, title:'Weekly Performance Report & Client Notification', badge:'pending', agent:'insight', detail:'Auto-generate PDF report.'},
@@ -1825,9 +1826,9 @@ function renderTasks(tasks) {
       ).join('') + '</div>';
     }
     const ac = {strategy:'cyan',creative:'purple',budget:'green',insight:'amber'}[t.agent]||'cyan';
-    const prog = t.badge==='completed'?100:t.badge==='running'?65:0;
+    const prog = t.badge==='completed'?100:t.badge==='running'?65:t.badge==='queued'?10:0;
     row.innerHTML = `
-      <span class="task-status" style="color:var(--${t.badge==='completed'?'text-secondary':t.badge==='running'?'text-primary':'text-muted'})">${t.badge==='completed'?'✓':t.badge==='running'?'▸':'○'}</span>
+      <span class="task-status" style="color:var(--${t.badge==='completed'?'text-secondary':t.badge==='running'?'text-primary':t.badge==='queued'?'amber':'text-muted'})">${t.badge==='completed'?'✓':t.badge==='running'?'▸':t.badge==='queued'?'◈':'○'}</span>
       <div class="task-content">
         <span class="title">${t.title}</span>${ph}
         <div class="task-detail${expandedTask===t.title?' open':''}">
@@ -1840,7 +1841,7 @@ function renderTasks(tasks) {
           </div>
         </div>
       </div>
-      <span class="task-badge badge-${t.badge}">${t.badge==='completed'?'Done':t.badge==='running'?'Running':''}</span>`;
+      <span class="task-badge badge-${t.badge}">${t.badge==='completed'?'Done':t.badge==='running'?'Running':t.badge==='queued'?'Queued':''}</span>`;
     row.addEventListener('click', () => {
       expandedTask = expandedTask === t.title ? null : t.title;
       document.querySelectorAll('.task-detail').forEach(d=>d.classList.remove('open'));
@@ -2431,7 +2432,7 @@ setTimeout(() => {
   showToast(' Insight Agent detected seasonal signal — creating new task...');
   setTimeout(() => {
     const d = clientsData[activeClient];
-    d.tasks.push({title:'[AUTO] Seasonal Campaign: "Holiday Gifts" ↑340% — IG Reels strategy', badge:'running', agent:'insight', duration:'running', detail:'Auto-generating seasonal Reels for top 3 ROAS clients.'});
+    d.tasks.push({title:'[AUTO] Seasonal Campaign: "Holiday Gifts" ↑340% — Waiting for Creative', badge:'queued', agent:'insight', duration:'queued', detail:'Scheduled IG Reels strategy for top 3 ROAS clients. Pending creative generation (Task 6) + Quality Gate.'});
     renderTasks(d.tasks);
     const el = document.getElementById('taskList');
     const last = el.lastElementChild;
