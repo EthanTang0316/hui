@@ -2012,22 +2012,46 @@ function renderKpis() {
   const d = clientsData[activeClient];
   const c = document.getElementById('kpiContainer'); c.innerHTML = '';
   c.classList.add('fade-swap'); setTimeout(() => c.classList.remove('fade-swap'), 400);
-  // Chart curves follow Meta Ad Creative Life Cycle: Learning → Scaling → Stable → Fatigue
+  // Per-client unique curves based on campaign archetype + seeded perturbation
   const roasV = parseFloat(d.roas);
   const cpaV = parseFloat(d.cpa.replace('$',''));
   const utilV = parseInt(d.util);
   const cpmV = parseFloat(d.cpm.replace('$',''));
-  // ROAS: learning期波动探索 → scaling快速拉升 → 峰值后小幅回落稳定
-  const roasCurve = [0.14,0.18,0.16,0.22,0.30,0.26,0.38,0.52,0.64,0.78,0.92,1.08,1.14,1.10,1.06,1.08,1.03,1.00].map(r=>+(roasV*r).toFixed(2));
-  // CPA: 初期高位波动 → scaling期快速下降 → 稳定后轻微回升
-  const cpaCurve = [2.05,1.92,2.00,1.80,1.65,1.72,1.45,1.22,1.06,0.92,0.86,0.83,0.87,0.90,0.93,0.96,0.98,1.00].map(r=>+(cpaV*r).toFixed(2));
-  // Spend/Util: 缓慢启动有波动 → 加速扩量 → 接近满额
-  const utilCurve = [0.01,0.03,0.02,0.05,0.10,0.08,0.18,0.30,0.44,0.56,0.67,0.76,0.83,0.88,0.92,0.95,0.98,1.00].map(r=>+(utilV*r).toFixed(0));
-  // CPM: 平滑上升趋势，带轻微自然波动（比原来更平滑）
-  const cpmCurve = [0.83,0.86,0.84,0.88,0.90,0.89,0.92,0.94,0.93,0.95,0.97,0.96,0.98,0.97,0.99,0.98,1.00,1.00].map(r=>+(cpmV*r).toFixed(2));
-  // Spend: 累计花费曲线 — 缓慢起步 → 加速投放 → 接近当前花费
-  const spentRaw = d.spent ? parseFloat(d.spent.replace(/[$,]/g,'')) : 0;
-  const spendCurve = [0.01,0.03,0.05,0.08,0.12,0.17,0.24,0.32,0.41,0.51,0.60,0.69,0.77,0.84,0.89,0.93,0.97,1.00].map(r=>+(spentRaw*r).toFixed(0));
+  const arch = d.tab==='completed'?'champ':d.status==='red'?'sink':d.status==='amber'?'strug':utilV<40?'explore':'cruise';
+  const _S = {
+    champ:{  // completed campaigns: smooth climb → peak → stable plateau
+      r:[.10,.15,.22,.32,.45,.58,.70,.82,.90,.95,.98,1.02,1.05,1.04,1.02,1.01,1.00,1.00],
+      c:[2.20,2.00,1.75,1.50,1.28,1.10,.96,.88,.83,.80,.82,.85,.88,.91,.94,.96,.98,1.00],
+      u:[.02,.05,.10,.18,.28,.40,.52,.64,.74,.82,.88,.92,.95,.97,.98,.99,1.00,1.00],
+      m:[.78,.81,.84,.86,.88,.90,.92,.93,.95,.96,.97,.97,.98,.99,.99,1.00,1.00,1.00]},
+    cruise:{ // healthy active: steady growth with slight variations
+      r:[.18,.22,.20,.28,.36,.42,.54,.65,.74,.82,.88,.93,.96,.98,1.00,1.01,1.00,1.00],
+      c:[1.85,1.75,1.80,1.65,1.50,1.42,1.28,1.14,1.04,.96,.91,.88,.90,.93,.95,.97,.99,1.00],
+      u:[.02,.04,.06,.10,.16,.24,.34,.44,.54,.64,.72,.79,.85,.90,.93,.96,.98,1.00],
+      m:[.82,.84,.86,.88,.89,.91,.92,.93,.94,.95,.96,.97,.97,.98,.99,.99,1.00,1.00]},
+    explore:{// early stage: volatile learning → rapid improvement
+      r:[.06,.10,.08,.14,.12,.20,.28,.36,.48,.62,.78,.90,1.04,1.10,1.06,1.02,1.00,1.00],
+      c:[2.40,2.20,2.30,2.05,1.90,2.00,1.70,1.45,1.22,1.02,.90,.82,.85,.88,.92,.95,.98,1.00],
+      u:[.01,.02,.01,.03,.05,.04,.08,.14,.22,.32,.44,.56,.68,.78,.86,.92,.96,1.00],
+      m:[.75,.80,.77,.84,.82,.88,.86,.90,.92,.94,.93,.96,.95,.97,.98,.99,1.00,1.00]},
+    strug:{  // amber: slow grind, volatile, gradual improvement
+      r:[.20,.25,.22,.28,.32,.30,.35,.40,.48,.55,.60,.68,.75,.82,.88,.94,.98,1.00],
+      c:[1.60,1.55,1.58,1.50,1.45,1.48,1.40,1.35,1.28,1.22,1.16,1.12,1.08,1.05,1.02,1.00,.99,1.00],
+      u:[.03,.06,.05,.08,.12,.10,.16,.22,.30,.38,.48,.57,.66,.74,.82,.90,.96,1.00],
+      m:[.86,.88,.87,.90,.92,.91,.93,.94,.95,.96,.96,.97,.98,.98,.99,.99,1.00,1.00]},
+    sink:{   // red: initial promise → decline to current poor state
+      r:[.50,.62,.75,.90,1.05,1.20,1.35,1.48,1.55,1.50,1.42,1.30,1.18,1.10,1.06,1.03,1.01,1.00],
+      c:[.60,.62,.65,.68,.72,.75,.78,.80,.83,.86,.88,.90,.93,.95,.97,.98,.99,1.00],
+      u:[.05,.10,.16,.22,.28,.34,.40,.46,.52,.58,.64,.70,.76,.82,.87,.92,.96,1.00],
+      m:[.88,.90,.91,.93,.94,.95,.96,.96,.97,.97,.98,.98,.99,.99,.99,1.00,1.00,1.00]},
+  };
+  let _h=0;for(let i=0;i<activeClient.length;i++)_h=(((_h<<5)-_h)+activeClient.charCodeAt(i))|0;_h=Math.abs(_h);
+  const _p=(a,amp)=>a.map((v,i)=>i>=a.length-2?v:Math.max(.01,+(v+Math.sin(_h*(i+1)*.618)*amp).toFixed(3)));
+  const _b=_S[arch];
+  const roasCurve=_p(_b.r,.04).map(r=>+(roasV*r).toFixed(2));
+  const cpaCurve=_p(_b.c,.04).map(r=>+(cpaV*r).toFixed(2));
+  const utilCurve=_p(_b.u,.02).map(r=>+(utilV*r).toFixed(0));
+  const cpmCurve=_p(_b.m,.02).map(r=>+(cpmV*r).toFixed(2));
   const kpis = [
     {key:'spend',value:d.spent||'$0',label:'SPEND',color:'cyan',chartData:utilCurve,chartColor:'rgb(170,170,170)',detail:`Budget: ${d.budget||'—'} · Util: ${d.util}`},
     {key:'roas',value:d.roas,label:'ROAS',color:'green',chartData:roasCurve,chartColor:'rgb(200,200,200)',detail:`Target: 2.5×`},
